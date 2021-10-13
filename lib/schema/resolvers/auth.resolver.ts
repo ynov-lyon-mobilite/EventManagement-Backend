@@ -1,10 +1,11 @@
 import { prisma } from '@lib/prisma-client';
 import { builder } from '@lib/schema/builder';
 import { compare, hash } from 'bcryptjs';
-import { RoleEnum, User } from '@prisma/client';
+import { RoleEnum } from '@prisma/client';
 import { SuccessObject } from './sucess.resolver';
 import { UserObject } from './user.resolver';
 import { SessionUserPayload, UserWithRoles } from '../types';
+import { emailArg, passwordArg, usernameArg } from '../args/user.args';
 
 const getSessionUserPayload = (user: UserWithRoles): SessionUserPayload => {
   const roles: RoleEnum[] = user.roles.map((perms) => {
@@ -18,8 +19,8 @@ builder.mutationField('login', (t) =>
   t.field({
     type: UserObject,
     args: {
-      username: t.arg.string({}),
-      password: t.arg.string({}),
+      username: usernameArg(t),
+      password: passwordArg(t),
     },
     resolve: async (_, { username, password }, ctx) => {
       const user = await prisma.user.findUnique({
@@ -46,9 +47,9 @@ builder.mutationField('register', (t) =>
   t.field({
     type: UserObject,
     args: {
-      username: t.arg.string({}),
-      password: t.arg.string({}),
-      email: t.arg.string({}),
+      username: usernameArg(t),
+      password: passwordArg(t),
+      email: emailArg(t),
     },
     resolve: async (_root, { password, email, username }, ctx) => {
       const hashPassword = await hash(password, 4);
@@ -83,15 +84,14 @@ builder.mutationField('register', (t) =>
 
 builder.queryField('user_infos', (t) =>
   t.field({
+    description: 'Get connected user informations',
     type: UserObject,
     authScopes: {
       isLogged: true,
     },
-    resolve: (_root, _args, ctx) => {
-      const user = ctx.req.session.get<User>('user');
-      if (!user) throw new Error('No user connected');
+    resolve: (_root, _args, { user }) => {
       return prisma.user.findUnique({
-        where: { uuid: user.uuid },
+        where: { uuid: user!.uuid },
       });
     },
   })

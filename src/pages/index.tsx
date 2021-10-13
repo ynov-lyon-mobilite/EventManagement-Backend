@@ -8,5 +8,5 @@ export default function IndexPage() {
     push('/api/graphql');
   }, []);
 
-  return <div>Redirection en cour</div>;
+  return <div>Redirect in progress</div>;
 }

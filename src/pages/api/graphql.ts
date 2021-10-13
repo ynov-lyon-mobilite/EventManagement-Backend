@@ -15,11 +15,13 @@ export const server = new ApolloServer({
   schema,
   dataSources: () => ({}),
   introspection: true,
-  plugins: [ApolloServerPluginLandingPageGraphQLPlayground],
-  context: async ({
-    req,
-    res,
-  }: HandlerContext): Promise<Omit<Context, 'dataSources'>> => {
+  plugins: [
+    ApolloServerPluginLandingPageGraphQLPlayground({
+      faviconUrl: '/favicon.ico',
+      title: 'API Playground',
+    }),
+  ],
+  context: ({ req, res }: HandlerContext): Omit<Context, 'dataSources'> => {
     const user = req.session.get<SessionUserPayload>('user');
     return { req, res, user };
   },

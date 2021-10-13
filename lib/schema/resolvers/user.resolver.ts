@@ -1,7 +1,10 @@
 import { builder } from '@lib/schema/builder';
 import { prisma } from '@lib/prisma-client';
-import { paginationArgs } from '../args/pagination-args';
+import { paginationArgs } from '../args/pagination.args';
 import { RoleEnum, User } from '@prisma/client';
+import { objectArgs, uuidArg } from '../args/generic.args';
+import { isOwnerOrAdmin } from '../validation/isOwnerOrAdmin';
+import { emailArg, passwordArg, usernameArg } from '../args/user.args';
 
 export const UserObject = builder.objectRef<User>('User');
 
@@ -31,8 +34,9 @@ builder.queryField('users', (t) =>
       ...paginationArgs(t),
       search: t.arg.string({ required: false }),
     },
+    authScopes: { isAdmin: true },
     resolve: (_root, args) => {
-      const contains = args.search ?? undefined;
+      const contains = args.search ?? '';
       return prisma.user.findMany({
         take: args.limit ?? undefined,
         skip: args.offset ?? undefined,
@@ -53,6 +57,38 @@ builder.queryField('user', (t) =>
     },
     resolve: (_root, args) => {
       return prisma.user.findUnique({ where: { uuid: args.id } });
+    },
+  })
+);
+
+builder.mutationField('deleteUser', (t) =>
+  t.field({
+    type: UserObject,
+    args: {
+      uuid: uuidArg(t),
+    },
+    authScopes: (_, { uuid }, { user }) => {
+      return isOwnerOrAdmin(uuid, user);
+    },
+    resolve: (_, { uuid }) => {
+      return prisma.user.delete({ where: { uuid } });
+    },
+  })
+);
+
+builder.mutationField('updateUser', (t) =>
+  t.field({
+    type: UserObject,
+    args: {
+      ...objectArgs<User>({
+        displayName: t.arg.string({}),
+        email: emailArg(t),
+        password: passwordArg(t),
+        username: usernameArg(t),
+      }),
+    },
+    resolve: () => {
+      return prisma.user.findFirst();
     },
   })
 );

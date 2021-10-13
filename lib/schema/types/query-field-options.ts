@@ -4,3 +4,9 @@ export type QueryFieldBuilderOptions = GiraphQLSchemaTypes.QueryFieldBuilder<
   GiraphQLSchemaTypes.ExtendDefaultTypes<ShemaBuilderOptions>,
   {}
 >;
+
+export type MutationFieldBuilderOptions =
+  GiraphQLSchemaTypes.MutationFieldBuilder<
+    GiraphQLSchemaTypes.ExtendDefaultTypes<ShemaBuilderOptions>,
+    {}
+  >;

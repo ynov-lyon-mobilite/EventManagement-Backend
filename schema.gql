@@ -1,15 +1,19 @@
 scalar Date
 
 type Mutation {
+  deleteUser(uuid: String!): User!
   login(password: String!, username: String!): User!
   logout: Success!
   register(email: String!, password: String!, username: String!): User!
+  updateUser(displayName: String!, email: String!, password: String!, username: String!): User!
 }
 
 type Query {
   isAlive: Boolean!
   ping: String!
   user(id: String!): User
+
+  """Get connected user informations"""
   user_infos: User!
   users(limit: Int, offset: Int, search: String): [User!]!
 }
