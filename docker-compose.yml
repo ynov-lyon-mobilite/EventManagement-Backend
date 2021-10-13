@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  weetleaf-postgres:
+    container_name: weetleaf-container-database
+    image: postgres
+    restart: unless-stopped
+    ports:
+      - '5432:5432'
+    volumes:
+      - weetleaf-postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+
+  compiler:
+    container_name: 'weetleaf-compiler'
+    restart: unless-stopped
+    image: node:15
+    command: npm run codegen:graphql -- --watch
+    volumes:
+      - .:/srv/compiler:rw
+    working_dir: /srv/compiler
+    depends_on:
+      - next
+
+  next:
+    container_name: weetleaf-application
+    restart: unless-stopped
+    image: node:15
+    command: npm run dev:next
+    ports:
+      - 3000:3000
+    volumes:
+      - .:/srv/next:rw
+    working_dir: /srv/next
+    env_file:
+      - .env
+    depends_on:
+      - weetleaf-postgres
+
+volumes:
+  weetleaf-postgres:
+  next:
