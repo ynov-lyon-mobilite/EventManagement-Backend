@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  yvent-postgres:
+    container_name: yvent-container-database
+    image: postgres
+    restart: unless-stopped
+    ports:
+      - '5432:5432'
+    volumes:
+      - yvent-postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+
+  next:
+    container_name: yvent-application
+    restart: unless-stopped
+    image: node:15
+    command: npm run dev:next
+    ports:
+      - 3000:3000
+    volumes:
+      - .:/srv/next:rw
+    working_dir: /srv/next
+    env_file:
+      - .env
+    depends_on:
+      - yvent-postgres
+
+volumes:
+  yvent-postgres:
+  next:
