@@ -16,7 +16,7 @@ async function main() {
     create: {
       displayName: 'Martin PELCAT',
       username: `pelcatmart`,
-      email: 'martin.pelcat@weetleaf.com',
+      email: 'martin.pelcat@yvent.com',
       password,
       roles: {
         create: {
