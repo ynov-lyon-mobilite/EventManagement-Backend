@@ -4,10 +4,6 @@ import { hash } from 'bcryptjs';
 async function main() {
   console.info('🌱 Seeding database');
 
-  await prisma.role.createMany({
-    data: [{ role_name: 'ADMIN' }, { role_name: 'DEV' }],
-  });
-
   const password = await hash('hophop', 4);
 
   await prisma.user.upsert({
@@ -19,14 +15,7 @@ async function main() {
       email: 'martin.pelcat@yvent.com',
       password,
       roles: {
-        create: {
-          role: {
-            connectOrCreate: {
-              create: { role_name: 'ADMIN' },
-              where: { role_name: 'ADMIN' },
-            },
-          },
-        },
+        set: ['ADMIN', 'DEV'],
       },
     },
   });

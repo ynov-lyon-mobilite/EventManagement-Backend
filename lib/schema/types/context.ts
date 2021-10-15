@@ -1,4 +1,4 @@
-import { Role, RoleEnum, User } from '@prisma/client';
+import { RoleEnum, User } from '@prisma/client';
 import { IncomingMessage, ServerResponse } from 'http';
 import { Session } from 'next-iron-session';
 
@@ -15,8 +15,5 @@ export type DataSources = {};
 
 export type SessionUserPayload = User & { roles: RoleEnum[] };
 
-export type UserWithRoles = User & {
-  roles: {
-    role: Role;
-  }[];
-};
+//Useless
+export type UserWithRoles = User;

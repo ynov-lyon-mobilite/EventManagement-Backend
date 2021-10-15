@@ -1,19 +1,10 @@
 import { prisma } from '@lib/prisma-client';
 import { builder } from '@lib/schema/builder';
 import { compare, hash } from 'bcryptjs';
-import { RoleEnum } from '@prisma/client';
 import { SuccessObject } from './sucess.resolver';
 import { UserObject } from './user.resolver';
-import { SessionUserPayload, UserWithRoles } from '../types';
+import { SessionUserPayload } from '../types';
 import { emailArg, passwordArg, usernameArg } from '../args/user.args';
-
-const getSessionUserPayload = (user: UserWithRoles): SessionUserPayload => {
-  const roles: RoleEnum[] = user.roles.map((perms) => {
-    return perms.role.role_name;
-  });
-
-  return { ...user, roles };
-};
 
 builder.mutationField('login', (t) =>
   t.field({
@@ -25,7 +16,6 @@ builder.mutationField('login', (t) =>
     resolve: async (_, { username, password }, ctx) => {
       const user = await prisma.user.findUnique({
         where: { username },
-        include: { roles: { select: { role: true } } },
       });
 
       if (!user) throw new Error('Invalid credentials');
@@ -33,10 +23,7 @@ builder.mutationField('login', (t) =>
         const isPassValid = await compare(password, user.password);
         if (!isPassValid) throw new Error('Invalid credentials');
       }
-      ctx.req.session.set<SessionUserPayload>(
-        'user',
-        getSessionUserPayload(user)
-      );
+      ctx.req.session.set<SessionUserPayload>('user', user);
       await ctx.req.session.save();
       return user;
     },
@@ -60,22 +47,11 @@ builder.mutationField('register', (t) =>
           password: hashPassword,
           email,
           roles: {
-            create: {
-              role: {
-                connectOrCreate: {
-                  create: { role_name: 'DEV' },
-                  where: { role_name: 'DEV' },
-                },
-              },
-            },
+            set: 'DEV',
           },
         },
-        include: { roles: { select: { role: true } } },
       });
-      ctx.req.session.set<SessionUserPayload>(
-        'user',
-        getSessionUserPayload(user)
-      );
+      ctx.req.session.set<SessionUserPayload>('user', user);
       await ctx.req.session.save();
       return user;
     },

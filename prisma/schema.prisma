@@ -19,22 +19,38 @@ model User {
   password    String
   createdAt   DateTime   @default(now()) @db.Timestamptz
   updatedAt   DateTime   @default(now()) @updatedAt @db.Timestamptz
-  roles       UserRole[]
+  roles       RoleEnum[]
+  Booking     Booking[]
 }
 
-model Role {
-  id         Int        @id @default(autoincrement())
-  role_name  RoleEnum   @unique
-  Permission UserRole[]
+model Event {
+  uuid                String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title               String
+  category            EventCategories @relation(fields: [eventCategoriesUuid], references: [uuid])
+  eventCategoriesUuid String          @db.Uuid
+  startDate           DateTime        @db.Timestamptz
+  endDate             DateTime?       @db.Timestamptz
+  description         String?
+  price               Float?
+  Booking             Booking[]
 }
 
-model UserRole {
-  user     User   @relation(fields: [userUuid], references: [uuid])
-  role     Role   @relation(fields: [roleId], references: [id])
-  userUuid String @db.Uuid
-  roleId   Int
+model EventCategories {
+  uuid   String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name   String
+  events Event[]
+}
 
-  @@id([userUuid, roleId])
+model Booking {
+  event        Event @relation(fields: [eventUuid], references: [uuid])
+  user         User  @relation(fields: [userUuid], references: [uuid])
+  
+    
+
+
+  eventUuid String @db.Uuid
+  userUuid  String @db.Uuid
+  @@id([eventUuid, userUuid])
 }
 
 enum RoleEnum {

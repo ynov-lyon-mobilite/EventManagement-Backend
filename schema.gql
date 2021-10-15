@@ -5,17 +5,23 @@ type Mutation {
   login(password: String!, username: String!): User!
   logout: Success!
   register(email: String!, password: String!, username: String!): User!
-  updateUser(displayName: String!, email: String!, password: String!, username: String!): User!
+  updateUser(displayName: String!, email: String, password: String, roles: [Role!], username: String, uuid: String!): User!
+}
+
+interface Node {
+  id: ID!
 }
 
 type Query {
   isAlive: Boolean!
+  listOfIDs: [ID!]!
+  node(id: ID!): Node
+  nodes(ids: [ID!]!): [Node]!
   ping: String!
-  user(id: String!): User
+  singleID: ID!
 
   """Get connected user informations"""
   user_infos: User!
-  users(limit: Int, offset: Int, search: String): [User!]!
 }
 
 enum Role {
@@ -27,9 +33,10 @@ type Success {
   success: Boolean!
 }
 
-type User {
+type User implements Node {
   displayName: String!
   email: String
+  id: ID!
   roles: [Role!]!
   username: String
   uuid: String!
