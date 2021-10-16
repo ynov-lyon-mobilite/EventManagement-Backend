@@ -5,10 +5,11 @@ import {
 } from '../types';
 
 export const uuidArg = (
-  t: MutationFieldBuilderOptions | QueryFieldBuilderOptions
-) => t.arg.string({ validate: { uuid: true } });
+  t: MutationFieldBuilderOptions | QueryFieldBuilderOptions,
+  required: boolean = true
+) => t.arg.string({ validate: { uuid: true }, required });
 
-export const objectArgs = <T = {}>(
+export const objectArgs = <T>(
   opts: {
     [P in keyof T]?: InputFieldRef<T[P], 'Arg'>;
   }
