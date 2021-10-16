@@ -20,7 +20,7 @@ model User {
   createdAt   DateTime   @default(now()) @db.Timestamptz
   updatedAt   DateTime   @default(now()) @updatedAt @db.Timestamptz
   roles       RoleEnum[]
-  Booking     Booking[]
+  bookings    Booking[]
 }
 
 model Event {
@@ -32,7 +32,8 @@ model Event {
   endDate             DateTime?       @db.Timestamptz
   description         String?
   price               Float?
-  Booking             Booking[]
+  bookings            Booking[]
+
 }
 
 model EventCategories {
@@ -42,11 +43,8 @@ model EventCategories {
 }
 
 model Booking {
-  event        Event @relation(fields: [eventUuid], references: [uuid])
-  user         User  @relation(fields: [userUuid], references: [uuid])
-  
-    
-
+  event Event @relation(fields: [eventUuid], references: [uuid])
+  user  User  @relation(fields: [userUuid], references: [uuid])
 
   eventUuid String @db.Uuid
   userUuid  String @db.Uuid
