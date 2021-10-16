@@ -58,6 +58,7 @@ builder.queryField('event', (t) =>
 
 builder.mutationField('createEvent', (t) =>
   t.field({
+    authScopes: { isAdmin: true },
     type: EventObject,
     args: {
       title: t.arg.string(),
