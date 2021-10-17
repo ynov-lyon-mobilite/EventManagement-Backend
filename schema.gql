@@ -1,26 +1,37 @@
 scalar Date
 
 type Event {
-  category: String!
+  category: EventCategory!
   description: String
   endDate: Date!
   participants: [User!]!
-  price: Float
+  price: Float!
   startDate: Date!
   title: String!
 }
 
+type EventCategory {
+  name: String!
+  uuid: String!
+}
+
 type Mutation {
-  createEvent: Event!
+  createEvent(categoriesUuid: String!, description: String, endDate: Date, price: Float, startDate: Date!, title: String!): Event!
+  deleteEvent(uuid: String!): Event!
   deleteUser(uuid: String!): User!
+
+  """Pay to join the event"""
+  joinEvent(uuid: String!): Event! @deprecated(reason: "Not implemented yet")
   login(password: String!, username: String!): User!
   logout: Success!
   register(email: String!, password: String!, username: String!): User!
+  updateEvent(categoriesUuid: String, description: String, endDate: Date, price: Float, startDate: Date, title: String, uuid: String!): Event!
   updateUser(displayName: String!, email: String, password: String, roles: [Role!], username: String, uuid: String!): User!
 }
 
 type Query {
   event(uuid: String!): Event!
+  eventCategories: [EventCategory!]!
   events: [Event!]!
   isAlive: Boolean!
   ping: String!
