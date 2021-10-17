@@ -54,6 +54,7 @@ type Success {
 type User {
   displayName: String!
   email: String
+  joinedEvents: [Event!]!
   roles: [Role!]!
   username: String
   uuid: String!
