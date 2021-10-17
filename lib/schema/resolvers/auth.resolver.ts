@@ -25,6 +25,7 @@ builder.mutationField('login', (t) =>
       }
       ctx.req.session.set<SessionUserPayload>('user', user);
       await ctx.req.session.save();
+      ctx.user = user;
       return user;
     },
   })
