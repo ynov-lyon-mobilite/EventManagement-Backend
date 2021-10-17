@@ -5,4 +5,5 @@ export const withSession = (handler: NextApiHandler) =>
   withIronSession(handler, {
     password: process.env.SESSION_SECRET ?? '',
     cookieName: 'evenementiel.session',
+    cookieOptions: { secure: process.env.NODE_ENV === 'production' },
   });

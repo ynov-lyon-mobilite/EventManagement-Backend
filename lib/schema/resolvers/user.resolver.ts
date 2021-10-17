@@ -20,6 +20,8 @@ builder.objectType(UserObject, {
     joinedEvents: t.field({
       type: [EventObject],
       authScopes: ({ uuid }, _, { user }) => {
+        console.log(uuid, user?.uuid);
+
         return isOwnerOrAdmin(uuid, user);
       },
       resolve: async ({ uuid }) => {

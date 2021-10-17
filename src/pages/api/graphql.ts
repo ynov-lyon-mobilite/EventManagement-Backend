@@ -19,6 +19,7 @@ export const server = new ApolloServer({
     ApolloServerPluginLandingPageGraphQLPlayground({
       faviconUrl: '/favicon.ico',
       title: 'API Playground',
+      settings: { 'request.credentials': 'include' },
     }),
   ],
   context: ({ req, res }: HandlerContext): Omit<Context, 'dataSources'> => {
