@@ -2,17 +2,10 @@ import SchemaBuilder from '@giraphql/core';
 import SimpleObjectsPlugin from '@giraphql/plugin-simple-objects';
 import ScopeAuthPlugin from '@giraphql/plugin-scope-auth';
 import ValidationPlugin from '@giraphql/plugin-validation';
-import RelayPlugin from '@giraphql/plugin-relay';
 import { Context, ShemaBuilderOptions } from '@types';
 
 export const builder = new SchemaBuilder<ShemaBuilderOptions>({
-  plugins: [
-    SimpleObjectsPlugin,
-    ScopeAuthPlugin,
-    ValidationPlugin,
-    RelayPlugin,
-  ],
-  relayOptions: { clientMutationId: 'omit', cursorType: 'String' },
+  plugins: [SimpleObjectsPlugin, ScopeAuthPlugin, ValidationPlugin],
   authScopes: async ({ user }: Context) => {
     const auth: ShemaBuilderOptions['AuthScopes'] = {
       isLogged: false,

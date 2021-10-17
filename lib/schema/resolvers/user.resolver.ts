@@ -2,7 +2,7 @@ import { builder } from '@lib/schema/builder';
 import { prisma } from '@lib/prisma-client';
 import { paginationArgs } from '../args/pagination.args';
 import { Prisma, RoleEnum, User } from '@prisma/client';
-import { objectArgs, uuidArg } from '../args/generic.args';
+import { uuidArg } from '../args/generic.args';
 import { isOwnerOrAdmin } from '../validation/isOwnerOrAdmin';
 import { emailArg, passwordArg, usernameArg } from '../args/user.args';
 import { hash } from 'bcryptjs';
@@ -40,29 +40,6 @@ builder.queryField('users', (t) =>
   })
 );
 
-// builder.node(UserObject, {
-//   name: 'User',
-//   id: { resolve: ({ uuid }) => uuid },
-//   isTypeOf: (obj) => {
-//     console.log(obj);
-
-//     return true;
-//   },
-//   loadOne: (id) => {
-//     return prisma.user.findUnique({ where: { uuid: id } });
-//   },
-//   loadMany: (ids) => {
-//     return prisma.user.findMany({ where: { uuid: { in: ids } } });
-//   },
-//   fields: (t) => ({
-//     uuid: t.exposeString('uuid', {}),
-//     displayName: t.exposeString('displayName'),
-//     email: t.exposeString('email', { nullable: true }),
-//     username: t.exposeString('username', { nullable: true }),
-//     roles: t.expose('roles', { type: [RoleEnum] }),
-//   }),
-// });
-
 builder.queryField('user', (t) =>
   t.field({
     type: UserObject,
@@ -95,13 +72,11 @@ builder.mutationField('updateUser', (t) =>
   t.field({
     type: UserObject,
     args: {
-      ...objectArgs<User>({
-        displayName: t.arg.string({}),
-        email: emailArg(t, false),
-        password: passwordArg(t, false),
-        username: usernameArg(t, false),
-        uuid: uuidArg(t),
-      }),
+      displayName: t.arg.string({}),
+      email: emailArg(t, false),
+      password: passwordArg(t, false),
+      username: usernameArg(t, false),
+      uuid: uuidArg(t),
       roles: t.arg({ type: [RoleEnum], required: false }),
     },
     authScopes: (_, { uuid, roles }, { user }) => {
