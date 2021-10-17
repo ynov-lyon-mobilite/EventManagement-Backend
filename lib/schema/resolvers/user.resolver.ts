@@ -6,6 +6,7 @@ import { uuidArg } from '../args/generic.args';
 import { isOwnerOrAdmin } from '../validation/isOwnerOrAdmin';
 import { emailArg, passwordArg, usernameArg } from '../args/user.args';
 import { hash } from 'bcryptjs';
+import { EventObject } from './event.resolver';
 
 export const UserObject = builder.objectRef<User>('User');
 
@@ -16,6 +17,18 @@ builder.objectType(UserObject, {
     email: t.exposeString('email', { nullable: true }),
     username: t.exposeString('username', { nullable: true }),
     roles: t.expose('roles', { type: [RoleEnum] }),
+    joinedEvents: t.field({
+      type: [EventObject],
+      authScopes: ({ uuid }, _, { user }) => {
+        return isOwnerOrAdmin(uuid, user);
+      },
+      resolve: async ({ uuid }) => {
+        const bookings = await prisma.user
+          .findUnique({ where: { uuid } })
+          .bookings({ select: { event: true } });
+        return bookings.map((booking) => booking.event);
+      },
+    }),
   }),
 });
 
