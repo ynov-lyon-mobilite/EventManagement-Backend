@@ -1,7 +1,8 @@
-import { Event, Prisma } from '.prisma/client';
+import { Event, EventCategories, Prisma } from '.prisma/client';
 import { prisma } from '@lib/prisma-client';
 import { uuidArg } from '../args/generic.args';
 import { builder } from '../builder';
+import { EventCategoryObject } from './event.category.resolver';
 import { UserObject } from './user.resolver';
 
 export const EventObject = builder.objectRef<Event>('Event');
@@ -18,12 +19,12 @@ builder.objectType(EventObject, {
       },
     }),
     category: t.field({
-      type: 'String',
+      type: EventCategoryObject,
       resolve: async ({ uuid }) => {
-        const cat = await prisma.event
+        const category: EventCategories | null = await prisma.event
           .findUnique({ where: { uuid } })
           .category();
-        return cat!.name;
+        return category!;
       },
     }),
     participants: t.field({
@@ -145,6 +146,7 @@ builder.mutationField('deleteEvent', (t) =>
 
 builder.mutationField('joinEvent', (t) =>
   t.field({
+    deprecationReason: 'Not implemented yet',
     description: 'Pay to join the event',
     type: EventObject,
     authScopes: { isLogged: true },
