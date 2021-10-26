@@ -1,5 +1,5 @@
 import { EventCategories } from '.prisma/client';
-import { prisma } from '@lib/prisma-client';
+import { prisma } from 'src/api/prisma-client';
 import { builder } from '../builder';
 
 export const EventCategoryObject = builder.objectRef<EventCategories>(

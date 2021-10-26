@@ -1,5 +1,5 @@
 import { Event, EventCategories, Prisma } from '.prisma/client';
-import { prisma } from '@lib/prisma-client';
+import { prisma } from 'src/api/prisma-client';
 import { uuidArg } from '../args/generic.args';
 import { builder } from '../builder';
 import { EventCategoryObject } from './event.category.resolver';

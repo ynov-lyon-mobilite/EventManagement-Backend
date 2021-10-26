@@ -1,10 +1,10 @@
-import { prisma } from '@lib/prisma-client';
-import { builder } from '@lib/schema/builder';
+import { prisma } from 'src/api/prisma-client';
+import { builder } from 'src/api/schema/builder';
 import { compare, hash } from 'bcryptjs';
 import { SuccessObject } from './sucess.resolver';
 import { UserObject } from './user.resolver';
-import { SessionUserPayload } from '../types';
 import { emailArg, passwordArg, usernameArg } from '../args/user.args';
+import { destroySession } from '@api/utils/session';
 
 builder.mutationField('login', (t) =>
   t.field({
@@ -23,8 +23,8 @@ builder.mutationField('login', (t) =>
         const isPassValid = await compare(password, user.password);
         if (!isPassValid) throw new Error('Invalid credentials');
       }
-      ctx.req.session.set<SessionUserPayload>('user', user);
-      await ctx.req.session.save();
+      ctx.req.session.user = user;
+      // await ctx.req.session.save();
       ctx.user = user;
       return user;
     },
@@ -52,8 +52,8 @@ builder.mutationField('register', (t) =>
           },
         },
       });
-      ctx.req.session.set<SessionUserPayload>('user', user);
-      await ctx.req.session.save();
+      ctx.req.session.user = user;
+      // await ctx.req.session.save();
       return user;
     },
   })
@@ -78,8 +78,8 @@ builder.mutationField('logout', (t) =>
   t.field({
     type: SuccessObject,
     authScopes: { isLogged: true },
-    resolve: (_root, _arg, ctx) => {
-      ctx.req.session.destroy();
+    resolve: async (_root, _arg, ctx) => {
+      await destroySession(ctx.req);
       return { success: true };
     },
   })

@@ -1,4 +1,4 @@
-import { QueryFieldBuilderOptions } from '@types';
+import { QueryFieldBuilderOptions } from 'src/api/schema/types';
 
 export const paginationArgs = (t: QueryFieldBuilderOptions) => {
   return {
