@@ -8,29 +8,14 @@ import {
 import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
 import { useSession } from '@api/utils/session';
+import { graphqlUploadExpress } from 'graphql-upload';
 
 type HandlerContext = { req: IncomingNextMessage; res: ServerResponse };
-
-// export const se prver = new ApolloServer({
-//   schema,
-//   dataSources: () => ({}),
-//   introspection: true,
-//   plugins: [
-//     ApolloServerPluginLandingPageGraphQLPlayground({
-//       faviconUrl: '/favicon.ico',
-//       title: 'API Playground',
-//       settings: { 'request.credentials': 'include' },
-//     }),
-//   ],
-//   context: ({ req, res }: HandlerContext): Omit<Context, 'dataSources'> => {
-//     const user = req.session.get('user') as User;
-//     return { req, res, user };
-//   },
-// });
 
 async function startApolloServer() {
   const app = express();
   app.use(useSession);
+  app.use(graphqlUploadExpress());
   const httpServer = createServer(app);
   const server = new ApolloServer({
     schema,
