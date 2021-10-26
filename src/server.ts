@@ -33,7 +33,7 @@ async function startApolloServer() {
     },
   });
   await server.start();
-  server.applyMiddleware({ app });
+  server.applyMiddleware({ app, path: '/api/graphql' });
   await new Promise<void>((resolve) =>
     httpServer.listen({ port: 3000 }, resolve)
   );
