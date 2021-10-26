@@ -24,7 +24,6 @@ builder.mutationField('login', (t) =>
         if (!isPassValid) throw new Error('Invalid credentials');
       }
       ctx.req.session.user = user;
-      // await ctx.req.session.save();
       ctx.user = user;
       return user;
     },
@@ -53,7 +52,6 @@ builder.mutationField('register', (t) =>
         },
       });
       ctx.req.session.user = user;
-      // await ctx.req.session.save();
       return user;
     },
   })
