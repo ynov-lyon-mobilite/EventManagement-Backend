@@ -19,13 +19,16 @@
     "sourceMap": false,
     "baseUrl": ".",
     "paths": {
-      "@lib/*": ["./lib/*"],
+      "@api/*": ["./src/api/*"],
       "@generated": ["./src/__graphql__/__generated__.ts"],
       "@components/*": ["./src/components/*"],
       "@utils/*": ["./src/utils/*"],
-      "@types": ["./lib/schema/types/index.ts"],
+      "@types": ["./src/api/schema/types/index.ts"],
       "@shared/*": ["./shared/*"]
     }
+  },
+  "ts-node": {
+    "transpileOnly": true
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"]

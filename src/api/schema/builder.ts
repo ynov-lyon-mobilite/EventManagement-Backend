@@ -2,7 +2,7 @@ import SchemaBuilder from '@giraphql/core';
 import SimpleObjectsPlugin from '@giraphql/plugin-simple-objects';
 import ScopeAuthPlugin from '@giraphql/plugin-scope-auth';
 import ValidationPlugin from '@giraphql/plugin-validation';
-import { Context, ShemaBuilderOptions } from '@types';
+import { Context, ShemaBuilderOptions } from 'src/api/schema/types';
 
 export const builder = new SchemaBuilder<ShemaBuilderOptions>({
   plugins: [SimpleObjectsPlugin, ScopeAuthPlugin, ValidationPlugin],
@@ -29,4 +29,9 @@ builder.mutationType({});
 builder.scalarType('Date', {
   serialize: (date) => date.toISOString(),
   parseValue: (date) => new Date(date),
+});
+
+builder.scalarType('CursorID', {
+  serialize: (cursor) => Buffer.from(cursor).toString('base64'),
+  parseValue: (cursor) => Buffer.from(cursor, 'base64').toString('utf8'),
 });

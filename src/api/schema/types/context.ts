@@ -1,6 +1,13 @@
 import { RoleEnum, User } from '@prisma/client';
+import session from 'express-session';
 import { IncomingMessage, ServerResponse } from 'http';
-import { Session } from 'next-iron-session';
+
+declare module 'express-session' {
+  interface SessionData {
+    user: User;
+  }
+}
+type Session = session.Session & Partial<session.SessionData>;
 
 export type IncomingNextMessage = IncomingMessage & { session: Session };
 
@@ -14,6 +21,3 @@ export type Context = {
 export type DataSources = {};
 
 export type SessionUserPayload = User & { roles: RoleEnum[] };
-
-//Useless
-export type UserWithRoles = User;

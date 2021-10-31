@@ -1,8 +1,8 @@
-import { builder } from '@lib/schema/builder';
-import { prisma } from '@lib/prisma-client';
+import { builder } from 'src/api/schema/builder';
+import { prisma } from 'src/api/prisma-client';
 import { paginationArgs } from '../args/pagination.args';
 import { Prisma, RoleEnum, User } from '@prisma/client';
-import { uuidArg } from '../args/generic.args';
+import { objectArgs, uuidArg } from '../args/generic.args';
 import { isOwnerOrAdmin } from '../validation/isOwnerOrAdmin';
 import { emailArg, passwordArg, usernameArg } from '../args/user.args';
 import { hash } from 'bcryptjs';
@@ -39,10 +39,17 @@ builder.queryField('users', (t) =>
     type: [UserObject],
     args: {
       ...paginationArgs(t),
+
+      ...objectArgs<User>({
+        email: emailArg(t),
+      }),
       search: t.arg.string({ required: false }),
     },
     // authScopes: { isAdmin: true },
     resolve: (_root, args) => {
+      // console.log(args.email);
+      // console.log(args.createdAt);
+
       const contains = args.search ?? '';
       return prisma.user.findMany({
         take: args.limit ?? undefined,

@@ -17,7 +17,7 @@ services:
   next:
     container_name: yvent-application
     restart: unless-stopped
-    image: node:15
+    image: node:16
     command: npm run dev:next
     ports:
       - 3000:3000

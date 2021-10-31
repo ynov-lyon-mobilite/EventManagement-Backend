@@ -7,6 +7,10 @@ export type ShemaBuilderOptions = {
       Input: Date;
       Output: Date;
     };
+    CursorID: {
+      Input: string;
+      Output: string;
+    };
   };
   AuthScopes: {
     isLogged: boolean;
