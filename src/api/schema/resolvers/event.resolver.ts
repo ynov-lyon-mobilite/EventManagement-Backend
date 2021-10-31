@@ -5,9 +5,10 @@ import { cursorArgs, generateCursorFindMany } from '../args/pagination.args';
 import { builder } from '../builder';
 import { createConnection, createConnectionObject } from './edge.resolver';
 import { EventCategoryObject } from './event.category.resolver';
-import { UserObject } from './user.resolver';
+import { UserConnection } from './user.resolver';
 
 export const EventObject = builder.objectRef<Event>('Event');
+export const EventConnection = createConnection(EventObject);
 
 builder.objectType(EventObject, {
   fields: (t) => ({
@@ -30,19 +31,44 @@ builder.objectType(EventObject, {
       },
     }),
     participants: t.field({
-      type: [UserObject],
-      resolve: async ({ uuid }) => {
+      type: UserConnection,
+      args: {
+        ...cursorArgs(t),
+      },
+      resolve: async ({ uuid }, args) => {
+        const { cursor, skip, take } = generateCursorFindMany(args);
+
+        const cursorArg:
+          | Prisma.BookingWhereUniqueInput
+          | undefined = cursor?.uuid
+          ? {
+              eventUuid_userUuid: {
+                userUuid: cursor.uuid,
+                eventUuid: uuid,
+              },
+            }
+          : undefined;
+
         const bookings = await prisma.event
           .findUnique({ where: { uuid } })
-          .bookings({ select: { user: true } });
+          .bookings({
+            select: { user: true },
+            take,
+            skip,
+            cursor: cursorArg,
+          });
 
-        return bookings.map((booking) => booking.user);
+        return createConnectionObject({
+          args,
+          edges: bookings.map((booking) => booking.user),
+          count: prisma.booking.count({
+            where: { event: { uuid } },
+          }),
+        });
       },
     }),
   }),
 });
-
-const EventConnection = createConnection(EventObject);
 
 builder.queryField('events', (t) =>
   t.field({

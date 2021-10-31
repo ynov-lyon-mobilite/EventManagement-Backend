@@ -1,14 +1,16 @@
 import { builder } from 'src/api/schema/builder';
 import { prisma } from 'src/api/prisma-client';
-import { paginationArgs } from '../args/pagination.args';
+import { cursorArgs, generateCursorFindMany } from '../args/pagination.args';
 import { Prisma, RoleEnum, User } from '@prisma/client';
-import { objectArgs, uuidArg } from '../args/generic.args';
+import { uuidArg } from '../args/generic.args';
 import { isOwnerOrAdmin } from '../validation/isOwnerOrAdmin';
 import { emailArg, passwordArg, usernameArg } from '../args/user.args';
 import { hash } from 'bcryptjs';
 import { EventObject } from './event.resolver';
+import { createConnection, createConnectionObject } from './edge.resolver';
 
 export const UserObject = builder.objectRef<User>('User');
+export const UserConnection = createConnection(UserObject);
 
 builder.objectType(UserObject, {
   fields: (t) => ({
@@ -36,27 +38,20 @@ builder.objectType(UserObject, {
 
 builder.queryField('users', (t) =>
   t.field({
-    type: [UserObject],
+    type: UserConnection,
     args: {
-      ...paginationArgs(t),
-
-      ...objectArgs<User>({
-        email: emailArg(t),
-      }),
-      search: t.arg.string({ required: false }),
+      ...cursorArgs(t),
     },
-    // authScopes: { isAdmin: true },
+    authScopes: { isAdmin: true },
     resolve: (_root, args) => {
-      // console.log(args.email);
-      // console.log(args.createdAt);
-
-      const contains = args.search ?? '';
-      return prisma.user.findMany({
-        take: args.limit ?? undefined,
-        skip: args.offset ?? undefined,
-        where: {
-          OR: [{ displayName: { contains } }, { username: { contains } }],
-        },
+      const findArgs = generateCursorFindMany(args);
+      return createConnectionObject({
+        args,
+        count: prisma.user.count(),
+        edges: prisma.user.findMany({
+          ...findArgs,
+          orderBy: { createdAt: 'asc' },
+        }),
       });
     },
   })
