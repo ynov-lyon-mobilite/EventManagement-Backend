@@ -65,6 +65,15 @@ type PageInfo {
 type Query {
   event(uuid: String!): Event!
   eventCategories: [EventCategory!]!
+  eventParticipants(
+    currentPage: Int = 1
+    cursor: CursorID
+    eventUuid: String!
+
+    """Max 50, Min 1"""
+    take: Int = 10
+    targetPage: Int
+  ): UserConnection!
   events(
     currentPage: Int = 1
     cursor: CursorID

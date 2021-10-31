@@ -203,3 +203,27 @@ builder.mutationField('joinEvent', (t) =>
     },
   })
 );
+
+builder.queryField('eventParticipants', (t) =>
+  t.field({
+    type: UserConnection,
+    args: {
+      eventUuid: t.arg.string(),
+      ...cursorArgs(t),
+    },
+    resolve: (_, args) => {
+      const findArgs = generateCursorFindMany(args);
+
+      return createConnectionObject({
+        args,
+        count: prisma.booking.count({
+          where: { event: { uuid: args.eventUuid } },
+        }),
+        edges: prisma.user.findMany({
+          ...findArgs,
+          where: { bookings: { some: { event: { uuid: args.eventUuid } } } }, // Not sure about that
+        }),
+      });
+    },
+  })
+);
