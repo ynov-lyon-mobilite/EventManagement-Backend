@@ -1,7 +1,9 @@
 import { Event, EventCategories, Prisma } from '.prisma/client';
 import { prisma } from 'src/api/prisma-client';
 import { uuidArg } from '../args/generic.args';
+import { cursorArgs, generateCursorFindMany } from '../args/pagination.args';
 import { builder } from '../builder';
+import { createConnection, createConnectionObject } from './edge.resolver';
 import { EventCategoryObject } from './event.category.resolver';
 import { UserObject } from './user.resolver';
 
@@ -40,11 +42,28 @@ builder.objectType(EventObject, {
   }),
 });
 
+const EventConnection = createConnection(EventObject);
+
 builder.queryField('events', (t) =>
   t.field({
-    type: [EventObject],
-    resolve: () => {
-      return prisma.event.findMany();
+    type: EventConnection,
+    args: {
+      ...cursorArgs(t),
+    },
+    resolve: (_, args) => {
+      const findArgs = generateCursorFindMany(args);
+
+      const where = { startDate: { gt: new Date() } };
+
+      return createConnectionObject({
+        args,
+        count: prisma.event.count({ where }),
+        edges: prisma.event.findMany({
+          ...findArgs,
+          where,
+          orderBy: { startDate: 'asc' },
+        }),
+      });
     },
   })
 );

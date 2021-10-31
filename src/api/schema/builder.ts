@@ -30,3 +30,8 @@ builder.scalarType('Date', {
   serialize: (date) => date.toISOString(),
   parseValue: (date) => new Date(date),
 });
+
+builder.scalarType('CursorID', {
+  serialize: (cursor) => Buffer.from(cursor).toString('base64'),
+  parseValue: (cursor) => Buffer.from(cursor, 'base64').toString('utf8'),
+});
