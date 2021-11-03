@@ -11,7 +11,7 @@ import { SubscriptionServer } from 'subscriptions-transport-ws';
 import { graphqlUploadExpress } from 'graphql-upload';
 import { execute, subscribe } from 'graphql';
 import cors from 'cors';
-import { HEADER_KEY, JWT_SECRET } from '@api/utils/jwt';
+import { JWT_SECRET } from '@api/utils/jwt';
 import { verify } from 'jsonwebtoken';
 
 type HandlerContext = { req: IncomingNextMessage; res: ServerResponse };
@@ -49,12 +49,12 @@ async function startApolloServer() {
       },
     ],
     context: ({ req, res }: HandlerContext): Omit<Context, 'dataSources'> => {
-      const jwt = req.headers[HEADER_KEY];
+      const jwt = req.headers['authorization'];
 
       let user: Context['user'] = undefined;
       if (typeof jwt === 'string') {
         try {
-          const decoded = verify(jwt, JWT_SECRET) as JWTPayload;
+          const decoded = verify(jwt.slice(7), JWT_SECRET) as JWTPayload;
           user = decoded;
         } catch (error) {}
       }
