@@ -11,14 +11,13 @@ import { SubscriptionServer } from 'subscriptions-transport-ws';
 import { useSession } from '@api/utils/session';
 import { graphqlUploadExpress } from 'graphql-upload';
 import { execute, subscribe } from 'graphql';
-import { PubSub } from 'graphql-subscriptions';
+import cors from 'cors';
 
 type HandlerContext = { req: IncomingNextMessage; res: ServerResponse };
 
-export const pubSub = new PubSub();
-
 async function startApolloServer() {
   const app = express();
+  app.use(cors());
   app.use(useSession);
   app.use(graphqlUploadExpress());
   const httpServer = createServer(app);
@@ -45,7 +44,7 @@ async function startApolloServer() {
     ],
     context: ({ req, res }: HandlerContext): Omit<Context, 'dataSources'> => {
       const user = req.session.user;
-      return { req, res, user, pubSub };
+      return { req, res, user };
     },
   });
 
