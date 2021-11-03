@@ -1,5 +1,5 @@
 import { schema } from '@api/schema';
-import { Context, IncomingNextMessage } from '@api/schema/types';
+import { Context, IncomingNextMessage, JWTPayload } from '@api/schema/types';
 import { ServerResponse, createServer } from 'http';
 import {
   ApolloServerPluginDrainHttpServer,
@@ -8,10 +8,11 @@ import {
 import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
 import { SubscriptionServer } from 'subscriptions-transport-ws';
-import { useSession } from '@api/utils/session';
 import { graphqlUploadExpress } from 'graphql-upload';
 import { execute, subscribe } from 'graphql';
 import cors from 'cors';
+import { HEADER_KEY, JWT_SECRET } from '@api/utils/jwt';
+import { verify } from 'jsonwebtoken';
 
 type HandlerContext = { req: IncomingNextMessage; res: ServerResponse };
 
@@ -23,7 +24,6 @@ async function startApolloServer() {
       credentials: true,
     })
   );
-  app.use(useSession);
   app.use(graphqlUploadExpress());
   const httpServer = createServer(app);
 
@@ -49,7 +49,16 @@ async function startApolloServer() {
       },
     ],
     context: ({ req, res }: HandlerContext): Omit<Context, 'dataSources'> => {
-      const user = req.session.user;
+      const jwt = req.headers[HEADER_KEY];
+
+      let user: Context['user'] = undefined;
+      if (typeof jwt === 'string') {
+        try {
+          const decoded = verify(jwt, JWT_SECRET) as JWTPayload;
+          user = decoded;
+        } catch (error) {}
+      }
+
       return { req, res, user };
     },
   });
@@ -62,7 +71,7 @@ async function startApolloServer() {
   await server.start();
   server.applyMiddleware({ app, path: '/api/graphql', cors: false });
   await new Promise<void>((resolve) =>
-    httpServer.listen({ port: process.env.PORT ?? 8080 }, resolve)
+    httpServer.listen({ port: process.env.PORT ?? 3000 }, resolve)
   );
   console.log(`🚀 Server ready at http://localhost:3000${server.graphqlPath}`);
 }

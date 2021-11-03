@@ -48,8 +48,7 @@ type Mutation {
 
   """Pay to join the event"""
   joinEvent(uuid: String!): Event! @deprecated(reason: "Not implemented yet")
-  login(password: String!, username: String!): User!
-  logout: Success!
+  login(email: String!, password: String!): User!
   register(email: String!, password: String!, username: String!): User!
   updateEvent(categoriesUuid: String, description: String, endDate: Date, price: Float, startDate: Date, title: String, uuid: String!): Event!
   updateUser(displayName: String!, email: String, password: String, roles: [Role!], username: String, uuid: String!): User!

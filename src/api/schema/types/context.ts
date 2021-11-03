@@ -1,15 +1,9 @@
 import { RoleEnum, User } from '@prisma/client';
-import session from 'express-session';
 import { IncomingMessage, ServerResponse } from 'http';
 
-declare module 'express-session' {
-  interface SessionData {
-    user: User;
-  }
-}
-type Session = session.Session & Partial<session.SessionData>;
+export type IncomingNextMessage = IncomingMessage;
 
-export type IncomingNextMessage = IncomingMessage & { session: Session };
+export type JWTPayload = User;
 
 export type Context = {
   req: IncomingNextMessage;

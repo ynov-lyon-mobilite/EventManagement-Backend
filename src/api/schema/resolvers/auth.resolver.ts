@@ -1,10 +1,10 @@
 import { prisma } from 'src/api/prisma-client';
 import { builder } from 'src/api/schema/builder';
 import { compare, hash } from 'bcryptjs';
-import { SuccessObject } from './sucess.resolver';
 import { UserObject } from './user.resolver';
 import { emailArg, passwordArg, usernameArg } from '../args/user.args';
-import { destroySession } from '@api/utils/session';
+import { sign } from 'jsonwebtoken';
+import { HEADER_KEY, JWT_SECRET } from '@api/utils/jwt';
 
 builder.mutationField('login', (t) =>
   t.field({
@@ -23,7 +23,10 @@ builder.mutationField('login', (t) =>
         const isPassValid = await compare(password, user.password);
         if (!isPassValid) throw new Error('Invalid credentials');
       }
-      ctx.req.session.user = user;
+      //TODO
+      const jwt = sign(user, JWT_SECRET);
+      ctx.res.setHeader(HEADER_KEY, jwt);
+
       ctx.user = user;
       return user;
     },
@@ -51,7 +54,8 @@ builder.mutationField('register', (t) =>
           },
         },
       });
-      ctx.req.session.user = user;
+      const jwt = sign(user, JWT_SECRET);
+      ctx.res.setHeader(HEADER_KEY, jwt);
       return user;
     },
   })
@@ -68,17 +72,6 @@ builder.queryField('user_infos', (t) =>
       return prisma.user.findUnique({
         where: { uuid: user!.uuid },
       });
-    },
-  })
-);
-
-builder.mutationField('logout', (t) =>
-  t.field({
-    type: SuccessObject,
-    authScopes: { isLogged: true },
-    resolve: async (_root, _arg, ctx) => {
-      await destroySession(ctx.req);
-      return { success: true };
     },
   })
 );
