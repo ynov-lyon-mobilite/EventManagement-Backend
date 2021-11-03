@@ -4,11 +4,23 @@ import { compare, hash } from 'bcryptjs';
 import { UserObject } from './user.resolver';
 import { emailArg, passwordArg, usernameArg } from '../args/user.args';
 import { sign } from 'jsonwebtoken';
-import { HEADER_KEY, JWT_SECRET } from '@api/utils/jwt';
+import { JWT_SECRET } from '@api/utils/jwt';
+import { User } from '.prisma/client';
+
+const UserAuthObject = builder.objectRef<{ user: User } & { jwt: string }>(
+  'UserAuth'
+);
+
+builder.objectType(UserAuthObject, {
+  fields: (t) => ({
+    user: t.expose('user', { type: UserObject }),
+    jwt: t.exposeString('jwt'),
+  }),
+});
 
 builder.mutationField('login', (t) =>
   t.field({
-    type: UserObject,
+    type: UserAuthObject,
     args: {
       email: emailArg(t),
       password: passwordArg(t),
@@ -25,17 +37,15 @@ builder.mutationField('login', (t) =>
       }
       //TODO
       const jwt = sign(user, JWT_SECRET);
-      ctx.res.setHeader(HEADER_KEY, jwt);
-
       ctx.user = user;
-      return user;
+      return { user, jwt };
     },
   })
 );
 
 builder.mutationField('register', (t) =>
   t.field({
-    type: UserObject,
+    type: UserAuthObject,
     args: {
       username: usernameArg(t),
       password: passwordArg(t),
@@ -55,8 +65,9 @@ builder.mutationField('register', (t) =>
         },
       });
       const jwt = sign(user, JWT_SECRET);
-      ctx.res.setHeader(HEADER_KEY, jwt);
-      return user;
+      ctx.user = user;
+
+      return { user, jwt };
     },
   })
 );
