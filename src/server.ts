@@ -17,7 +17,12 @@ type HandlerContext = { req: IncomingNextMessage; res: ServerResponse };
 
 async function startApolloServer() {
   const app = express();
-  app.use(cors());
+  app.use(
+    cors({
+      origin: '*',
+      credentials: true,
+    })
+  );
   app.use(useSession);
   app.use(graphqlUploadExpress());
   const httpServer = createServer(app);

@@ -4,8 +4,8 @@
   "scripts": {
     "dev": "docker-compose up",
     "dev:next": "nodemon",
-    "build": "next build",
-    "start": "next start",
+    "build": "tsc",
+    "start": "node -r ts-node/register -r tsconfig-paths/register dist/server.js",
     "type-check": "tsc --noEmit",
     "prisma:docker": "docker-compose run next npx prisma",
     "prisma:docker:preview": "docker-compose run next npx prisma --preview-feature",
