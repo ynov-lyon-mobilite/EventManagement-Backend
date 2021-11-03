@@ -16,8 +16,8 @@ builder.objectType(UserObject, {
   fields: (t) => ({
     uuid: t.exposeString('uuid', {}),
     displayName: t.exposeString('displayName'),
-    email: t.exposeString('email', { nullable: true }),
-    username: t.exposeString('username', { nullable: true }),
+    email: t.exposeString('email'),
+    username: t.exposeString('username'),
     roles: t.expose('roles', { type: [RoleEnum] }),
     joinedEvents: t.field({
       type: [EventObject],
