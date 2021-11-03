@@ -1,5 +1,6 @@
 import { RoleEnum, User } from '@prisma/client';
 import session from 'express-session';
+import { PubSub } from 'graphql-subscriptions';
 import { IncomingMessage, ServerResponse } from 'http';
 
 declare module 'express-session' {
@@ -16,6 +17,7 @@ export type Context = {
   res: ServerResponse;
   user: SessionUserPayload | undefined;
   dataSources: DataSources;
+  pubSub: PubSub;
 };
 
 export type DataSources = {};

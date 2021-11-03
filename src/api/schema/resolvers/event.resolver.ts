@@ -118,7 +118,9 @@ builder.mutationField('createEvent', (t) =>
       endDate: t.arg({ type: 'Date', required: false }),
       price: t.arg.float({ required: false }),
     },
-    resolve: (_, args) => {
+    resolve: async (_, args, { pubSub }) => {
+      await pubSub.publish('polls', args.title);
+
       return prisma.event.create({
         data: {
           title: args.title,
@@ -151,7 +153,7 @@ builder.mutationField('updateEvent', (t) =>
         (value) => value !== null || value !== undefined
       );
     },
-    resolve: (_root, args) => {
+    resolve: async (_root, args, { pubSub }) => {
       const datas: Prisma.EventUpdateArgs['data'] = {
         title: args.title ?? undefined,
         description: args.description ?? undefined,
@@ -166,10 +168,12 @@ builder.mutationField('updateEvent', (t) =>
 
       //TODO: Notify user who already booked of the changes
 
-      return prisma.event.update({
+      const event = await prisma.event.update({
         where: { uuid: args.uuid },
         data: datas,
       });
+      pubSub.publish(`event/${args.uuid}`, event);
+      return event;
     },
   })
 );

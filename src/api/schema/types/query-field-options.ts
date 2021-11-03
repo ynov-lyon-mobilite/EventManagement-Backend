@@ -8,6 +8,10 @@ export type QueryFieldBuilderOptions =
   | GiraphQLSchemaTypes.ObjectFieldBuilder<
       GiraphQLSchemaTypes.ExtendDefaultTypes<ShemaBuilderOptions>,
       {}
+    >
+  | GiraphQLSchemaTypes.SubscriptionFieldBuilder<
+      GiraphQLSchemaTypes.ExtendDefaultTypes<ShemaBuilderOptions>,
+      {}
     >;
 
 export type MutationFieldBuilderOptions = GiraphQLSchemaTypes.MutationFieldBuilder<
