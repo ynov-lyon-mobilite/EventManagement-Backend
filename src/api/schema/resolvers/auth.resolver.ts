@@ -10,12 +10,12 @@ builder.mutationField('login', (t) =>
   t.field({
     type: UserObject,
     args: {
-      username: usernameArg(t),
+      email: emailArg(t),
       password: passwordArg(t),
     },
-    resolve: async (_, { username, password }, ctx) => {
+    resolve: async (_, { email, password }, ctx) => {
       const user = await prisma.user.findUnique({
-        where: { username },
+        where: { email },
       });
 
       if (!user) throw new Error('Invalid credentials');

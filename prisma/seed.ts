@@ -19,6 +19,20 @@ async function main() {
       },
     },
   });
+
+  await prisma.user.upsert({
+    where: { username: 'admin' },
+    update: {},
+    create: {
+      displayName: 'Admin YVENT',
+      username: `admin`,
+      email: 'admin@yvent.com',
+      password,
+      roles: {
+        set: ['ADMIN', 'DEV'],
+      },
+    },
+  });
 }
 
 main()
