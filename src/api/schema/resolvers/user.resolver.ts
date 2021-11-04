@@ -8,6 +8,8 @@ import { emailArg, passwordArg, usernameArg } from '../args/user.args';
 import { hash } from 'bcryptjs';
 import { EventObject } from './event.resolver';
 import { createConnection, createConnectionObject } from './edge.resolver';
+import { stripe } from '@api/utils/stripe';
+import { Stripe } from 'stripe';
 
 export const UserObject = builder.objectRef<User>('User');
 export const UserConnection = createConnection(UserObject);
@@ -114,9 +116,24 @@ builder.mutationField('updateUser', (t) =>
 
       if (args.roles) datas.roles = args.roles;
 
+      const user = await prisma.user.findUnique({ where: { uuid: args.uuid } });
+
+      let customer: Stripe.Customer;
+
+      if (user.stripeCustomerId) {
+        customer = await stripe.customers.update(user.stripeCustomerId, {
+          email: args.email,
+        });
+      } else {
+        customer = await stripe.customers.create({
+          email: args.email,
+        });
+      }
+
       return prisma.user.update({
         where: { uuid: args.uuid },
         data: {
+          stripeCustomerId: customer.id,
           ...datas,
         },
       });

@@ -1,4 +1,5 @@
 import { Event, EventCategories, Prisma } from '.prisma/client';
+import { stripe } from '@api/utils/stripe';
 import { prisma } from 'src/api/prisma-client';
 import { uuidArg } from '../args/generic.args';
 import { cursorArgs, generateCursorFindMany } from '../args/pagination.args';
@@ -119,6 +120,10 @@ builder.mutationField('createEvent', (t) =>
       price: t.arg.float({ required: false }),
     },
     resolve: async (_, args) => {
+      await stripe.products.create({
+        name: '',
+      });
+
       return prisma.event.create({
         data: {
           title: args.title,

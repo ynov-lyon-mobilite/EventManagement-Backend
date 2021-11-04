@@ -6,6 +6,7 @@ import { emailArg, passwordArg, usernameArg } from '../args/user.args';
 import { sign } from 'jsonwebtoken';
 import { JWT_SECRET } from '@api/utils/jwt';
 import { User } from '.prisma/client';
+import { stripe } from '@api/utils/stripe';
 
 const UserAuthObject = builder.objectRef<{ user: User } & { jwt: string }>(
   'UserAuth'
@@ -53,6 +54,7 @@ builder.mutationField('register', (t) =>
     },
     resolve: async (_root, { password, email, username }, ctx) => {
       const hashPassword = await hash(password, 4);
+
       const user = await prisma.user.create({
         data: {
           displayName: username,
@@ -64,6 +66,15 @@ builder.mutationField('register', (t) =>
           },
         },
       });
+
+      const customer = await stripe.customers.create({
+        email: user.email,
+        name: user.displayName,
+        preferred_locales: ['fr-FR'],
+      });
+
+      stripe.customers.del(customer.id);
+
       const jwt = sign(user, JWT_SECRET);
       ctx.user = user;
 
