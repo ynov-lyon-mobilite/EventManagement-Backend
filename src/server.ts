@@ -1,5 +1,10 @@
 import { schema } from '@api/schema';
-import { Context, IncomingNextMessage, JWTPayload } from '@api/schema/types';
+import {
+  Context,
+  datasourcesServices,
+  IncomingNextMessage,
+  JWTPayload,
+} from '@api/schema/types';
 import { ServerResponse, createServer } from 'http';
 import {
   ApolloServerPluginDrainHttpServer,
@@ -30,6 +35,7 @@ async function startApolloServer() {
   const server = new ApolloServer({
     schema,
     introspection: true,
+    dataSources: () => datasourcesServices as any,
     plugins: [
       ApolloServerPluginDrainHttpServer({ httpServer }),
       ApolloServerPluginLandingPageGraphQLPlayground({

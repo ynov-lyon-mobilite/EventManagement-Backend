@@ -1,5 +1,6 @@
 import { RoleEnum, User } from '@prisma/client';
 import { IncomingMessage, ServerResponse } from 'http';
+import { UserService } from '../services/user.service';
 
 export type IncomingNextMessage = IncomingMessage;
 
@@ -12,6 +13,10 @@ export type Context = {
   dataSources: DataSources;
 };
 
-export type DataSources = {};
+export type DataSources = typeof datasourcesServices;
+
+export const datasourcesServices = {
+  user: new UserService(),
+};
 
 export type SessionUserPayload = User & { roles: RoleEnum[] };
