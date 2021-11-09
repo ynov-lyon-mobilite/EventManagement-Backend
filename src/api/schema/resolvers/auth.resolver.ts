@@ -29,7 +29,6 @@ builder.mutationField('login', (t) =>
       const user = await prisma.user.findUnique({
         where: { email },
       });
-      console.log(ctx.dataSources);
 
       if (!user) throw new Error('Invalid credentials');
       if (user.password) {
@@ -38,6 +37,7 @@ builder.mutationField('login', (t) =>
       }
       //TODO
       const jwt = sign(user, JWT_SECRET);
+      ctx.req.session.user = user;
       ctx.user = user;
       return { user, jwt };
     },
@@ -56,7 +56,6 @@ builder.mutationField('register', (t) =>
       const user = await ctx.dataSources.user.createUser({
         password,
         email,
-        username,
         displayName: username,
         roles: {
           set: 'DEV',
@@ -64,6 +63,7 @@ builder.mutationField('register', (t) =>
       });
       const jwt = sign(user, JWT_SECRET);
       ctx.user = user;
+      ctx.req.session.user = user;
 
       return { user, jwt };
     },

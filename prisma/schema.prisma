@@ -14,14 +14,22 @@ generator client {
 model User {
   uuid             String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   email            String     @unique
-  username         String     @unique
   displayName      String
-  password         String
+  password         String?
   createdAt        DateTime   @default(now()) @db.Timestamptz
   updatedAt        DateTime   @default(now()) @updatedAt @db.Timestamptz
   stripeCustomerId String?
+  provider         Provider?
+  providerId       String?
   roles            RoleEnum[]
   bookings         Booking[]
+
+  @@unique([provider, providerId])
+}
+
+enum Provider {
+  GOOGLE
+  FACEBOOK
 }
 
 model Event {

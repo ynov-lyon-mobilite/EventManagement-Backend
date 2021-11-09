@@ -12,23 +12,23 @@ import {
 } from 'apollo-server-core';
 import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
-import { SubscriptionServer } from 'subscriptions-transport-ws';
 import { graphqlUploadExpress } from 'graphql-upload';
-import { execute, subscribe } from 'graphql';
-import cors from 'cors';
 import { JWT_SECRET } from '@api/utils/jwt';
 import { verify } from 'jsonwebtoken';
+import { registerProviders } from '@api/auth.providers';
+import { useSession } from '@api/utils/session';
+import cookieParser from 'cookie-parser';
 
 type HandlerContext = { req: IncomingNextMessage; res: ServerResponse };
 
 async function startApolloServer() {
   const app = express();
-  app.use(
-    cors({
-      origin: '*',
-      credentials: true,
-    })
-  );
+  app.enable('trust proxy');
+  app.use(cookieParser());
+
+  app.use(useSession);
+
+  registerProviders(app);
   app.use(graphqlUploadExpress());
   const httpServer = createServer(app);
 
@@ -43,39 +43,35 @@ async function startApolloServer() {
         title: 'API Playground',
         settings: { 'request.credentials': 'include' },
       }),
-      {
-        async serverWillStart() {
-          return {
-            async drainServer() {
-              console.info('Closing subscription server');
-              return subscriptionServer.close();
-            },
-          };
-        },
-      },
     ],
     context: ({ req, res }: HandlerContext): Omit<Context, 'dataSources'> => {
+      const usr = req.user ?? req.session?.user;
+
       const jwt = req.headers['authorization'];
 
-      let user: Context['user'] = undefined;
-      if (typeof jwt === 'string') {
-        try {
-          const decoded = verify(jwt.slice(7), JWT_SECRET) as JWTPayload;
-          user = decoded;
-        } catch (error) {}
+      let user: Context['user'] = usr;
+      if (!usr) {
+        if (typeof jwt === 'string') {
+          try {
+            const decoded = verify(jwt.slice(7), JWT_SECRET) as JWTPayload;
+            user = decoded;
+          } catch (error) {}
+        }
       }
 
       return { req, res, user };
     },
   });
 
-  const subscriptionServer = SubscriptionServer.create(
-    { schema, execute, subscribe },
-    { server: httpServer, path: server.graphqlPath }
-  );
-
   await server.start();
-  server.applyMiddleware({ app, path: '/api/graphql', cors: false });
+  server.applyMiddleware({
+    app,
+    path: '/api/graphql',
+    cors: {
+      credentials: true,
+      origin: true,
+    },
+  });
   await new Promise<void>((resolve) =>
     httpServer.listen({ port: process.env.PORT ?? 3000 }, resolve)
   );

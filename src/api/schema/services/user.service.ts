@@ -12,11 +12,15 @@ export class UserService extends ServiceContainer {
       preferred_locales: ['fr-FR'],
     });
     try {
+      const password = data.password
+        ? await hash(data.password, 10)
+        : undefined;
+
       const user = await prisma.user.create({
         data: {
           ...data,
           stripeCustomerId: stripeUser.id,
-          password: await hash(data.password, 4),
+          password,
         },
       });
       await this.services.mail.send('', '', 'AccountValidation', {

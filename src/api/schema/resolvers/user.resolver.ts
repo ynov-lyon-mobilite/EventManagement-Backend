@@ -19,7 +19,6 @@ builder.objectType(UserObject, {
     uuid: t.exposeString('uuid', {}),
     displayName: t.exposeString('displayName'),
     email: t.exposeString('email'),
-    username: t.exposeString('username'),
     roles: t.expose('roles', { type: [RoleEnum] }),
     joinedEvents: t.field({
       type: [EventObject],
@@ -111,7 +110,6 @@ builder.mutationField('updateUser', (t) =>
         displayName: args.displayName,
         email: args.email,
         password: hashPassword,
-        username: args.username,
       };
 
       if (args.roles) datas.roles = args.roles;
