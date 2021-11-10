@@ -2,7 +2,7 @@ import { IncomingNextMessage } from '@api/schema/types';
 import session from 'express-session';
 
 export const useSession = session({
-  secret: process.env.SESSION_SECRET ?? '',
+  secret: process.env.SESSION_SECRET ?? 'PQE1DhbY3Ambybt6NLgQaNGZnnFAHHGL',
   name: 'yvent-api',
   resave: true,
   saveUninitialized: false,

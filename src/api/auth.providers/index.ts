@@ -10,6 +10,10 @@ export const registerProviders = (app: Express) => {
   app.use(passport.initialize());
   app.use(passport.session());
 
+  app.get('/api/auth/success', (_, res) => {
+    res.send(`<script>window.close()</script>`);
+  });
+
   passport.serializeUser((user: any, done) => {
     done(null, user);
   });

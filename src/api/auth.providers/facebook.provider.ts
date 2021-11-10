@@ -19,8 +19,6 @@ export class FacebookProvider implements IAuthProvider {
         profileFields: ['id', 'displayName', 'photos', 'emails'],
       },
       async (_accessToken, _refreshToken, profile, done) => {
-        console.log(profile);
-
         const user = await prisma.user.findUnique({
           where: {
             provider_providerId: {
@@ -55,7 +53,7 @@ export class FacebookProvider implements IAuthProvider {
     app.get(
       '/api/auth/facebook/callback',
       passport.authenticate('facebook', {
-        successRedirect: '/',
+        successRedirect: '/api/auth/success',
         failureRedirect: '/login',
       })
     );
