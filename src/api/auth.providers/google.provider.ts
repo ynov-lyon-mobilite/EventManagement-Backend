@@ -1,35 +1,32 @@
+import { Strategy } from 'passport';
+import { IAuthProvider } from './IAuthProvider';
+import { OAuth2Strategy } from 'passport-google-oauth';
 import { prisma } from '@api/prisma-client';
 import { UserService } from '@api/schema/services/user.service';
-import { Strategy } from 'passport';
-import { Strategy as FacebookStrategy } from 'passport-facebook';
-import { IAuthProvider } from './IAuthProvider';
 
-export class FacebookProvider implements IAuthProvider {
+export class GoogleProvider implements IAuthProvider {
   scope(): string | string[] | undefined {
-    return ['email'];
+    return ['https://www.googleapis.com/auth/plus.login', 'email'];
   }
   strategyName(): string {
-    return 'facebook';
+    return 'google';
   }
   isAvailable(): boolean {
-    console.log('IsAvailable');
-
-    return !!process.env.FACEBOOK_APP_ID && !!process.env.FACEBOOK_APP_SECRET;
+    return !!process.env.GOOGLE_CLIENT_ID && !!process.env.GOOGLE_CLIENT_SECRET;
   }
   strategy(): Strategy | null {
     if (!this.isAvailable()) return null;
-    return new FacebookStrategy(
+    return new OAuth2Strategy(
       {
-        clientID: process.env.FACEBOOK_APP_ID!,
         callbackURL: `http://localhost:3000/api/auth/${this.strategyName()}/callback`,
-        clientSecret: process.env.FACEBOOK_APP_SECRET!,
-        profileFields: ['id', 'displayName', 'photos', 'emails'],
+        clientID: process.env.GOOGLE_CLIENT_ID!,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
       },
       async (_accessToken, _refreshToken, profile, done) => {
         const user = await prisma.user.findUnique({
           where: {
             provider_providerId: {
-              provider: 'FACEBOOK',
+              provider: 'GOOGLE',
               providerId: profile.id,
             },
           },
@@ -44,7 +41,7 @@ export class FacebookProvider implements IAuthProvider {
           providerId: profile.id,
           displayName: profile.displayName,
           email: profile.emails![0].value,
-          provider: 'FACEBOOK',
+          provider: 'GOOGLE',
         });
 
         done(null, userService);
