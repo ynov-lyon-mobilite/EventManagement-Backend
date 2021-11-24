@@ -120,7 +120,7 @@ builder.mutationField('createEvent', (t) =>
     args: {
       title: t.arg.string(),
       description: t.arg.string({ required: false }),
-      categoriesUuid: uuidArg(t),
+      categoryUuid: uuidArg(t),
       startDate: t.arg({ type: 'Date' }),
       endDate: t.arg({ type: 'Date', required: false }),
       price: t.arg.float({ required: false }),
@@ -130,7 +130,7 @@ builder.mutationField('createEvent', (t) =>
         title: args.title,
         description: args.description,
         startDate: args.startDate,
-        category: { connect: { uuid: args.categoriesUuid } },
+        category: { connect: { uuid: args.categoryUuid } },
         endDate: args.endDate,
       });
 

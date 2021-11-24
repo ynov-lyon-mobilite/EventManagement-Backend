@@ -11,7 +11,7 @@ builder.objectType(EventCategoryObject, {
     uuid: t.exposeString('uuid'),
     name: t.exposeString('name'),
     isActive: t.boolean({
-      resolve: (eventCategory) => eventCategory.deletedAt !== null,
+      resolve: (eventCategory) => eventCategory.deletedAt === null,
     }),
   }),
 });
@@ -24,7 +24,7 @@ builder.queryField('eventCategories', (t) =>
         return prisma.eventCategories.findMany();
       }
       return prisma.eventCategories.findMany({
-        where: { deletedAt: { not: null } },
+        where: { deletedAt: { equals: null } },
       });
     },
   })
