@@ -151,7 +151,7 @@ builder.mutationField('updateEvent', (t) =>
       uuid: uuidArg(t),
       title: t.arg.string({ required: false }),
       description: t.arg.string({ required: false }),
-      categoriesUuid: uuidArg(t, false),
+      categoryUuid: uuidArg(t, false),
       startDate: t.arg({ type: 'Date', required: false }),
       endDate: t.arg({ type: 'Date', required: false }),
     },
@@ -168,8 +168,8 @@ builder.mutationField('updateEvent', (t) =>
         endDate: args.endDate ?? undefined,
       };
 
-      if (args.categoriesUuid) {
-        datas.category = { connect: { uuid: args.categoriesUuid } };
+      if (args.categoryUuid) {
+        datas.category = { connect: { uuid: args.categoryUuid } };
       }
 
       return dataSources.event.updateEvent(args.uuid, datas);
