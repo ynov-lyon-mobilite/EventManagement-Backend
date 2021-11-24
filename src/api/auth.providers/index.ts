@@ -35,7 +35,7 @@ export const registerProviders = (app: Express) => {
 
   providers.forEach((provider) => {
     const strategy = provider.strategy();
-    if (strategy) {
+    if (provider.isAvailable() && strategy) {
       console.info(`Registering ${strategy.name} strategy`);
       passport.use(strategy);
       generateStrategyCallback(app, provider.strategyName(), provider.scope());

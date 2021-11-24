@@ -21,6 +21,8 @@ import cookieParser from 'cookie-parser';
 
 type HandlerContext = { req: IncomingNextMessage; res: ServerResponse };
 
+const PORT = process.env.PORT ?? 3000;
+
 async function startApolloServer() {
   const app = express();
   app.enable('trust proxy');
@@ -73,9 +75,11 @@ async function startApolloServer() {
     },
   });
   await new Promise<void>((resolve) =>
-    httpServer.listen({ port: process.env.PORT ?? 3000 }, resolve)
+    httpServer.listen({ port: PORT }, resolve)
   );
-  console.log(`🚀 Server ready at http://localhost:3000${server.graphqlPath}`);
+  console.log(
+    `🚀 Server ready at http://localhost:${PORT}${server.graphqlPath}`
+  );
 }
 
 startApolloServer();

@@ -25,7 +25,7 @@ export class MailerService {
     return transport.sendMail({
       to,
       subject,
-      html: templates[template](opts).html,
+      html: templates[template](opts as any).html,
     });
   }
 }

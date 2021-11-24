@@ -12,8 +12,6 @@ export class FacebookProvider implements IAuthProvider {
     return 'facebook';
   }
   isAvailable(): boolean {
-    console.log('IsAvailable');
-
     return !!process.env.FACEBOOK_APP_ID && !!process.env.FACEBOOK_APP_SECRET;
   }
   strategy(): Strategy | null {

@@ -8,8 +8,7 @@ import { emailArg, passwordArg, usernameArg } from '../args/user.args';
 import { hash } from 'bcryptjs';
 import { EventObject } from './event.resolver';
 import { createConnection, createConnectionObject } from './edge.resolver';
-import { stripe } from '@api/utils/stripe';
-import { Stripe } from 'stripe';
+import { BookingObject } from './booking.resolver';
 
 export const UserObject = builder.objectRef<User>('User');
 export const UserConnection = createConnection(UserObject);
@@ -28,8 +27,19 @@ builder.objectType(UserObject, {
       resolve: async ({ uuid }) => {
         const bookings = await prisma.user
           .findUnique({ where: { uuid } })
-          .bookings({ select: { event: true } });
-        return bookings.map((booking) => booking.event);
+          .bookings({
+            select: { eventPrice: { select: { event: true } } },
+          });
+        return bookings.map((booking) => booking.eventPrice.event);
+      },
+    }),
+    bookings: t.field({
+      type: [BookingObject],
+      authScopes: ({ uuid }, _, { user }) => {
+        return isOwnerOrAdmin(uuid, user);
+      },
+      resolve: ({ uuid }) => {
+        return prisma.user.findUnique({ where: { uuid } }).bookings();
       },
     }),
   }),
@@ -88,7 +98,7 @@ builder.mutationField('updateUser', (t) =>
   t.field({
     type: UserObject,
     args: {
-      displayName: t.arg.string({}),
+      displayName: t.arg.string({ required: false }),
       email: emailArg(t, false),
       password: passwordArg(t, false),
       username: usernameArg(t, false),
@@ -99,40 +109,19 @@ builder.mutationField('updateUser', (t) =>
       if (roles && !user?.roles.includes('ADMIN')) return false;
       return isOwnerOrAdmin(uuid, user);
     },
-    resolve: async (_, args) => {
+    resolve: async (_, args, { dataSources }) => {
       const hashPassword = args.password
         ? await hash(args.password, 4)
         : undefined;
 
       const datas: Prisma.UserUpdateArgs['data'] = {
-        displayName: args.displayName,
+        displayName: args.displayName ?? undefined,
         email: args.email,
         password: hashPassword,
       };
-
       if (args.roles) datas.roles = args.roles;
 
-      const user = await prisma.user.findUnique({ where: { uuid: args.uuid } });
-
-      let customer: Stripe.Customer;
-
-      if (user.stripeCustomerId) {
-        customer = await stripe.customers.update(user.stripeCustomerId, {
-          email: args.email,
-        });
-      } else {
-        customer = await stripe.customers.create({
-          email: args.email,
-        });
-      }
-
-      return prisma.user.update({
-        where: { uuid: args.uuid },
-        data: {
-          stripeCustomerId: customer.id,
-          ...datas,
-        },
-      });
+      return dataSources.user.updateUser(args.uuid, datas);
     },
   })
 );

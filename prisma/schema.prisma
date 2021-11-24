@@ -40,24 +40,39 @@ model Event {
   startDate           DateTime        @db.Timestamptz
   endDate             DateTime?       @db.Timestamptz
   description         String?
-  price               Float?
-  bookings            Booking[]
+  deletedAt           DateTime?       @db.Timestamptz
+  prices              EventPrices[]
+  stripeProductId     String
+}
 
+model EventPrices {
+  uuid          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  event         Event     @relation(fields: [eventUuid], references: [uuid])
+  description   String
+  price         Float
+  createdAt     DateTime  @default(now()) @db.Timestamptz
+  updatedAt     DateTime  @default(now()) @updatedAt @db.Timestamptz
+  eventUuid     String    @db.Uuid
+  bookings      Booking[]
+  stripePriceId String
 }
 
 model EventCategories {
-  uuid   String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name   String
-  events Event[]
+  uuid      String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String
+  events    Event[]
+  deletedAt DateTime? @db.Timestamptz
 }
 
 model Booking {
-  event Event @relation(fields: [eventUuid], references: [uuid])
-  user  User  @relation(fields: [userUuid], references: [uuid])
+  uuid       String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  eventPrice EventPrices @relation(fields: [eventPriceUuid], references: [uuid])
+  user       User        @relation(fields: [userUuid], references: [uuid])
+  refunded   Boolean     @default(false)
+  refundedAt DateTime?   @db.Timestamptz
 
-  eventUuid String @db.Uuid
-  userUuid  String @db.Uuid
-  @@id([eventUuid, userUuid])
+  eventPriceUuid String @db.Uuid
+  userUuid       String @db.Uuid
 }
 
 enum RoleEnum {

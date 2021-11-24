@@ -1,3 +1,12 @@
+type Booking {
+  event: Event!
+  price: Float
+  refunded: Boolean!
+  refundedAt: Date
+  user: User!
+  uuid: String!
+}
+
 type Cursor {
   current: CursorID
   take: Int!
@@ -20,12 +29,14 @@ type Event {
     take: Int = 10
     targetPage: Int
   ): UserConnection!
-  price: Float!
+  participantsCount: Int!
+  prices: [Price!]!
   startDate: Date!
   title: String!
 }
 
 type EventCategory {
+  isActive: Boolean!
   name: String!
   uuid: String!
 }
@@ -42,16 +53,21 @@ type EventNode {
 }
 
 type Mutation {
+  createBooking(eventPriceUuid: String!): Booking!
   createEvent(categoriesUuid: String!, description: String, endDate: Date, price: Float, startDate: Date!, title: String!): Event!
+  createEventCategory(name: String!): EventCategory!
   deleteEvent(uuid: String!): Event!
+  deleteEventCategory(uuid: String!): EventCategory!
   deleteUser(uuid: String!): User!
 
   """Pay to join the event"""
   joinEvent(uuid: String!): Event! @deprecated(reason: "Not implemented yet")
   login(email: String!, password: String!): UserAuth!
   register(email: String!, password: String!, username: String!): UserAuth!
-  updateEvent(categoriesUuid: String, description: String, endDate: Date, price: Float, startDate: Date, title: String, uuid: String!): Event!
-  updateUser(displayName: String!, email: String, password: String, roles: [Role!], username: String, uuid: String!): User!
+  restoreEventCategory(uuid: String!): EventCategory!
+  updateEvent(categoriesUuid: String, description: String, endDate: Date, startDate: Date, title: String, uuid: String!): Event!
+  updateEventCategory(name: String!, uuid: String!): EventCategory!
+  updateUser(displayName: String, email: String, password: String, roles: [Role!], username: String, uuid: String!): User!
 }
 
 type PageInfo {
@@ -59,6 +75,12 @@ type PageInfo {
   hasNextPage: Boolean!
   hasPreviousPage: Boolean!
   totalPages: Int!
+}
+
+type Price {
+  description: String!
+  price: Float!
+  uuid: String!
 }
 
 type Query {
@@ -107,6 +129,7 @@ type Success {
 }
 
 type User {
+  bookings: [Booking!]!
   displayName: String!
   email: String!
   joinedEvents: [Event!]!

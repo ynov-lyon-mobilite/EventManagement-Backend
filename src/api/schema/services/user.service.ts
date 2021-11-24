@@ -2,9 +2,10 @@ import { Prisma } from '.prisma/client';
 import { prisma } from '@api/prisma-client';
 import { stripe } from '@api/utils/stripe';
 import { hash } from 'bcryptjs';
-import { ServiceContainer } from './service.container';
+import { Stripe } from 'stripe';
+import { Service } from './service';
 
-export class UserService extends ServiceContainer {
+export class UserService extends Service {
   public async createUser(data: Prisma.UserCreateInput) {
     const stripeUser = await stripe.customers.create({
       email: data.email,
@@ -23,7 +24,7 @@ export class UserService extends ServiceContainer {
           password,
         },
       });
-      await this.services.mail.send('', '', 'AccountValidation', {
+      await this.mail.send('', '', 'AccountValidation', {
         link: `test`,
       });
       return user;
@@ -33,30 +34,30 @@ export class UserService extends ServiceContainer {
     }
   }
 
-  public async updateUser(userUuid: string, data: Prisma.UserUpdateInput) {
-    const foundUser = await prisma.user.findUnique({
-      where: { uuid: userUuid },
-    });
+  public async updateUser(userUuid: string, datas: Prisma.UserUpdateInput) {
+    const user = await prisma.user.findUnique({ where: { uuid: userUuid } });
 
-    const email = data.email ? data.email.toString() : foundUser.email;
+    let customer: Stripe.Customer | undefined = undefined;
 
-    const user = await prisma.user.update({
-      where: { uuid: userUuid },
-      data,
-    });
-
-    if (foundUser.stripeCustomerId) {
-      if (data.email !== foundUser.email) {
-        await stripe.customers.update(foundUser.stripeCustomerId, {
-          email,
-        });
-      }
-    } else {
-      await stripe.customers.create({
-        email,
+    if (user.stripeCustomerId && datas.email) {
+      customer = await stripe.customers.update(user.stripeCustomerId, {
+        email: datas.email.toString(),
+      });
+    } else if (!user.stripeCustomerId && datas.email) {
+      customer = await stripe.customers.create({
+        email: datas.email.toString(),
       });
     }
 
-    return user;
+    if (customer) {
+      datas.stripeCustomerId = customer.id;
+    }
+
+    return prisma.user.update({
+      where: { uuid: userUuid },
+      data: {
+        ...datas,
+      },
+    });
   }
 }
