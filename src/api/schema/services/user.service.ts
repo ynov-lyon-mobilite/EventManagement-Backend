@@ -24,9 +24,15 @@ export class UserService extends Service {
           password,
         },
       });
-      await this.mail.send('', '', 'AccountValidation', {
-        link: `test`,
-      });
+      await this.mail.send(
+        user.email,
+        'Compte créé sur Yvent',
+        'AccountCreated',
+        {
+          displayName: user.displayName,
+          email: user.email,
+        }
+      );
       return user;
     } catch (error) {
       await stripe.customers.del(stripeUser.id);
