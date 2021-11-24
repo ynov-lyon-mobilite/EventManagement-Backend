@@ -4,7 +4,7 @@ import { cursorArgs, generateCursorFindMany } from '../args/pagination.args';
 import { Prisma, RoleEnum, User } from '@prisma/client';
 import { uuidArg } from '../args/generic.args';
 import { isOwnerOrAdmin } from '../validation/isOwnerOrAdmin';
-import { emailArg, passwordArg, usernameArg } from '../args/user.args';
+import { emailArg, passwordArg } from '../args/user.args';
 import { hash } from 'bcryptjs';
 import { EventObject } from './event.resolver';
 import { createConnection, createConnectionObject } from './edge.resolver';
@@ -101,7 +101,6 @@ builder.mutationField('updateUser', (t) =>
       displayName: t.arg.string({ required: false }),
       email: emailArg(t, false),
       password: passwordArg(t, false),
-      username: usernameArg(t, false),
       uuid: uuidArg(t),
       roles: t.arg({ type: [RoleEnum], required: false }),
     },

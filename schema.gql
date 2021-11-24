@@ -63,11 +63,11 @@ type Mutation {
   """Pay to join the event"""
   joinEvent(uuid: String!): Event! @deprecated(reason: "Not implemented yet")
   login(email: String!, password: String!): UserAuth!
-  register(email: String!, password: String!, username: String!): UserAuth!
+  register(displayName: String!, email: String!, password: String!): UserAuth!
   restoreEventCategory(uuid: String!): EventCategory!
   updateEvent(categoriesUuid: String, description: String, endDate: Date, startDate: Date, title: String, uuid: String!): Event!
   updateEventCategory(name: String!, uuid: String!): EventCategory!
-  updateUser(displayName: String, email: String, password: String, roles: [Role!], username: String, uuid: String!): User!
+  updateUser(displayName: String, email: String, password: String, roles: [Role!], uuid: String!): User!
 }
 
 type PageInfo {

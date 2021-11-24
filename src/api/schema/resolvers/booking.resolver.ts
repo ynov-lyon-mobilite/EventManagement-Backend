@@ -51,6 +51,7 @@ builder.mutationField('createBooking', (t) =>
     },
     authScopes: { isLogged: true },
     resolve: async (_, args, { dataSources, user }) => {
+      //TODO: add paymentIntend stripe
       return dataSources.booking.createBooking({
         eventPrice: { connect: { uuid: args.eventPriceUuid } },
         user: { connect: { uuid: user!.uuid } },

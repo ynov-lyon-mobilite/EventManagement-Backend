@@ -48,15 +48,15 @@ builder.mutationField('register', (t) =>
   t.field({
     type: UserAuthObject,
     args: {
-      username: usernameArg(t),
+      displayName: usernameArg(t),
       password: passwordArg(t),
       email: emailArg(t),
     },
-    resolve: async (_root, { password, email, username }, ctx) => {
+    resolve: async (_root, { password, email, displayName }, ctx) => {
       const user = await ctx.dataSources.user.createUser({
         password,
         email,
-        displayName: username,
+        displayName,
         roles: {
           set: 'DEV',
         },
