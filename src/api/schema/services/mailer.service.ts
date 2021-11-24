@@ -15,17 +15,19 @@ export class MailerService {
     return Boolean(process.env.DISABLE_MAIL);
   }
 
-  public send<T extends Template>(
+  public async send<T extends Template>(
     to: string,
     subject: string,
     template: T,
     opts: Parameters<typeof templates[T]>[0]
-  ): Promise<any> {
+  ): Promise<void> {
     if (this.isDisabled()) return Promise.resolve();
-    return transport.sendMail({
+    await transport.sendMail({
       to,
       subject,
       html: templates[template](opts as any).html,
     });
+
+    console.info(`Sent email to ${to} at ${new Date().toLocaleDateString()}`);
   }
 }
