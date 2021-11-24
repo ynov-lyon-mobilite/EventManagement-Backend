@@ -12,6 +12,9 @@ export const transport = createTransport({
 
 export class MailerService {
   private isDisabled(): boolean {
+    console.log('isDisabled', process.env.DISABLE_MAIL);
+    console.log(process.env.DISABLE_MAIL !== 'false');
+
     return process.env.DISABLE_MAIL !== 'false';
   }
 
