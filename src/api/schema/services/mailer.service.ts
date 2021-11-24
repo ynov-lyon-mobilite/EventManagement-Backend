@@ -12,7 +12,7 @@ export const transport = createTransport({
 
 export class MailerService {
   private isDisabled(): boolean {
-    return Boolean(process.env.DISABLE_MAIL);
+    return process.env.DISABLE_MAIL !== 'false';
   }
 
   public async send<T extends Template>(
@@ -21,13 +21,13 @@ export class MailerService {
     template: T,
     opts: Parameters<typeof templates[T]>[0]
   ): Promise<void> {
-    if (this.isDisabled()) return Promise.resolve();
+    if (this.isDisabled()) return;
+
     await transport.sendMail({
       to,
       subject,
       html: templates[template](opts as any).html,
     });
-
     console.info(`Sent email to ${to} at ${new Date().toLocaleDateString()}`);
   }
 }
