@@ -33,6 +33,7 @@ type Event {
   prices: [Price!]!
   startDate: Date!
   title: String!
+  uuid: String!
 }
 
 type EventCategory {

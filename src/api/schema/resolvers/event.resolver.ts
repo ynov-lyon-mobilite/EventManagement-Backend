@@ -13,6 +13,7 @@ export const EventConnection = createConnection(EventObject);
 
 builder.objectType(EventObject, {
   fields: (t) => ({
+    uuid: t.exposeString('uuid'),
     title: t.exposeString('title'),
     startDate: t.expose('startDate', { type: 'Date' }),
     endDate: t.expose('startDate', { type: 'Date' }),
