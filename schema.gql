@@ -57,6 +57,7 @@ type Mutation {
   createBooking(eventPriceUuid: String!): Booking!
   createEvent(categoryUuid: String!, description: String, endDate: Date, price: Float, startDate: Date!, title: String!): Event!
   createEventCategory(name: String!): EventCategory!
+  createPrice(description: String, eventUuid: String!, price: Float!): Price!
   deleteEvent(uuid: String!): Event!
   deleteEventCategory(uuid: String!): EventCategory!
   deleteUser(uuid: String!): User!

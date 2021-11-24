@@ -232,3 +232,20 @@ builder.queryField('eventParticipants', (t) =>
     },
   })
 );
+
+builder.mutationField('createPrice', (t) =>
+  t.field({
+    type: PriceObject,
+    args: {
+      eventUuid: t.arg.string(),
+      price: t.arg.float(),
+      description: t.arg.string({ required: false }),
+    },
+    resolve: (_, { eventUuid, price, description }, { dataSources }) => {
+      return dataSources.price.createPrice(eventUuid, {
+        price,
+        description: description ?? undefined,
+      });
+    },
+  })
+);
