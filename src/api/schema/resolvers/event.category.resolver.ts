@@ -75,15 +75,25 @@ builder.mutationField('deleteEventCategory', (t) =>
     args: {
       uuid: t.arg.string({ required: true }),
     },
-    resolve: async (_, { uuid }) => {
-      return prisma.eventCategories.update({
-        where: {
-          uuid,
-        },
-        data: {
-          deletedAt: new Date(),
-        },
+    resolve: async (_, { uuid }, { dataSources }) => {
+      return dataSources.eventCategory.deleteEventCategory(uuid);
+    },
+  })
+);
+
+builder.mutationField('deleteEventCategories', (t) =>
+  t.field({
+    type: [EventCategoryObject],
+    authScopes: { isAdmin: true },
+    args: {
+      uuids: t.arg.stringList({ required: true }),
+    },
+    resolve: async (_, { uuids }, { dataSources }) => {
+      const deletePromise = uuids.map(async (uuid) => {
+        return dataSources.eventCategory.deleteEventCategory(uuid);
       });
+
+      return Promise.all(deletePromise);
     },
   })
 );

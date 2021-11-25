@@ -5,6 +5,7 @@ import session from 'express-session';
 import { PriceService } from '../services/price.service';
 import { EventService } from '../services/event.service';
 import { BookingService } from '../services/booking.service';
+import { EventCategoryService } from '../services/event.category.service';
 
 declare module 'express-session' {
   interface SessionData {
@@ -33,6 +34,7 @@ export const datasourcesServices = {
   price: new PriceService(),
   event: new EventService(),
   booking: new BookingService(),
+  eventCategory: new EventCategoryService(),
 };
 
 export type SessionUserPayload = User & { roles: RoleEnum[] };
