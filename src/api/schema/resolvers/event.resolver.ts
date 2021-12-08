@@ -1,4 +1,4 @@
-import { Event, EventCategories, Prisma } from '.prisma/client';
+import { Event, EventCategories, Prisma, User } from '.prisma/client';
 import { prisma } from 'src/api/prisma-client';
 import { uuidArg } from '../args/generic.args';
 import { cursorArgs, generateCursorFindMany } from '../args/pagination.args';
@@ -6,7 +6,7 @@ import { builder } from '../builder';
 import { createConnection, createConnectionObject } from './edge.resolver';
 import { EventCategoryObject } from './event.category.resolver';
 import { PriceObject } from './prices.resolver';
-import { UserConnection } from './user.resolver';
+import { UserConnection, UserObject } from './user.resolver';
 
 export const EventObject = builder.objectRef<Event>('Event');
 export const EventConnection = createConnection(EventObject);
@@ -126,6 +126,15 @@ builder.mutationField('createEvent', (t) =>
       price: t.arg.float({ required: false }),
     },
     resolve: async (_, args, { dataSources }) => {
+      const eventCategory = await prisma.eventCategories.findUnique({
+        where: { uuid: args.categoryUuid },
+      });
+      if (eventCategory.deletedAt !== null) {
+        throw new Error(
+          'Il faut activer la categorie avant de pouvoir ajouter cet évenement'
+        );
+      }
+
       const event = await dataSources.event.createEvent({
         title: args.title,
         description: args.description,
@@ -246,6 +255,28 @@ builder.mutationField('createPrice', (t) =>
         price,
         description: description ?? undefined,
       });
+    },
+  })
+);
+
+builder.subscriptionField('eventCreated', (t) =>
+  t.field({
+    type: UserObject,
+    subscribe: (_, _arg, { pubsub }) =>
+      (pubsub.asyncIterator('eventCreated') as unknown) as AsyncIterable<User>,
+    resolve: (payload: User) => {
+      return payload;
+    },
+  })
+);
+
+builder.mutationField('testSub', (t) =>
+  t.field({
+    type: 'Boolean',
+    resolve: async (_, _args, { pubsub }) => {
+      const user = await prisma.user.findFirst({});
+      pubsub.publish('eventCreated', user);
+      return true;
     },
   })
 );

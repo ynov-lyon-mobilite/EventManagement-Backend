@@ -25,6 +25,7 @@ export const builder = new SchemaBuilder<ShemaBuilderOptions>({
 // This initializes the query and mutation types so that we can add fields to them dynamically:
 builder.queryType({});
 builder.mutationType({});
+builder.subscriptionType({});
 
 builder.scalarType('Date', {
   serialize: (date) => date.toISOString(),

@@ -6,6 +6,7 @@ import { PriceService } from '../services/price.service';
 import { EventService } from '../services/event.service';
 import { BookingService } from '../services/booking.service';
 import { EventCategoryService } from '../services/event.category.service';
+import { PubSub } from 'graphql-subscriptions';
 
 declare module 'express-session' {
   interface SessionData {
@@ -25,6 +26,7 @@ export type Context = {
   res: ServerResponse;
   user: SessionUserPayload | undefined;
   dataSources: DataSources;
+  pubsub: PubSub;
 };
 
 export type DataSources = typeof datasourcesServices;

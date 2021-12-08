@@ -13,26 +13,53 @@ import {
 import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
 import { graphqlUploadExpress } from 'graphql-upload';
-import { JWT_SECRET } from '@api/utils/jwt';
+import { JWT_SECRET, resolverUserToken } from '@api/utils/jwt';
 import { verify } from 'jsonwebtoken';
 import { registerProviders } from '@api/auth.providers';
 import { useSession } from '@api/utils/session';
 import cookieParser from 'cookie-parser';
+import { PubSub } from 'graphql-subscriptions';
+import { execute, subscribe } from 'graphql';
+import { SubscriptionServer } from 'subscriptions-transport-ws';
 
 type HandlerContext = { req: IncomingNextMessage; res: ServerResponse };
 
 const PORT = process.env.PORT ?? 3000;
+
+const pubsub = new PubSub();
 
 async function startApolloServer() {
   const app = express();
   app.enable('trust proxy');
   app.use(cookieParser());
 
-  app.use(useSession);
-
-  registerProviders(app);
   app.use(graphqlUploadExpress());
   const httpServer = createServer(app);
+
+  const subscriptionServer = SubscriptionServer.create(
+    {
+      schema,
+      execute,
+      subscribe,
+      onConnect: async (connectionParams: any) => {
+        const { authorization } = connectionParams;
+        console.log('onConnect', authorization);
+
+        const user = resolverUserToken(authorization);
+        console.log(user);
+
+        // if (!authorization) {
+        //   throw new Error('No authorization token');
+        // }
+        // const token = authorization.split(' ')[1];
+        // const payload = verify(token, JWT_SECRET) as JWTPayload;
+        return {
+          pubsub,
+        };
+      },
+    },
+    { server: httpServer, path: '/api/graphql' }
+  );
 
   const server = new ApolloServer({
     schema,
@@ -45,23 +72,27 @@ async function startApolloServer() {
         title: 'API Playground',
         settings: { 'request.credentials': 'include' },
       }),
+      {
+        async serverWillStart() {
+          return {
+            async drainServer() {
+              subscriptionServer.close();
+            },
+          };
+        },
+      },
     ],
     context: ({ req, res }: HandlerContext): Omit<Context, 'dataSources'> => {
-      const usr = req.user ?? req.session?.user;
-
       const jwt = req.headers['authorization'];
 
-      let user: Context['user'] = usr;
-      if (!usr) {
-        if (typeof jwt === 'string') {
-          try {
-            const decoded = verify(jwt.slice(7), JWT_SECRET) as JWTPayload;
-            user = decoded;
-          } catch (error) {}
-        }
+      let user: Context['user'];
+      if (typeof jwt === 'string') {
+        try {
+          user = resolverUserToken(jwt);
+        } catch (error) {}
       }
 
-      return { req, res, user };
+      return { req, res, user, pubsub };
     },
   });
 

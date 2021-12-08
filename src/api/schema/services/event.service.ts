@@ -1,6 +1,7 @@
 import { Event, Prisma } from '.prisma/client';
 import { prisma } from '@api/prisma-client';
 import { stripe } from '@api/utils/stripe';
+import { addDays } from 'date-fns';
 
 export class EventService {
   public async createEvent(
@@ -13,6 +14,7 @@ export class EventService {
       }}`,
     });
 
+    event.endDate = addDays(new Date(event.startDate), 1);
     return prisma.event.create({
       data: {
         ...event,

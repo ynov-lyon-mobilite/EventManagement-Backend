@@ -22,12 +22,11 @@ type Event {
   description: String
   endDate: Date!
   participants(
-    currentPage: Int = 1
     cursor: CursorID
+    page: Int = 1
 
     """Max 50, Min 1"""
     take: Int = 10
-    targetPage: Int
   ): UserConnection!
   participantsCount: Int!
   prices: [Price!]!
@@ -59,6 +58,7 @@ type Mutation {
   createEventCategory(name: String!): EventCategory!
   createPrice(description: String, eventUuid: String!, price: Float!): Price!
   deleteEvent(uuid: String!): Event!
+  deleteEventCategories(uuids: [String!]!): [EventCategory!]!
   deleteEventCategory(uuid: String!): EventCategory!
   deleteUser(uuid: String!): User!
 
@@ -67,6 +67,7 @@ type Mutation {
   login(email: String!, password: String!): UserAuth!
   register(displayName: String!, email: String!, password: String!): UserAuth!
   restoreEventCategory(uuid: String!): EventCategory!
+  testSub: Boolean!
   updateEvent(categoryUuid: String, description: String, endDate: Date, startDate: Date, title: String, uuid: String!): Event!
   updateEventCategory(name: String!, uuid: String!): EventCategory!
   updateUser(displayName: String, email: String, password: String, roles: [Role!], uuid: String!): User!
@@ -89,21 +90,19 @@ type Query {
   event(uuid: String!): Event!
   eventCategories: [EventCategory!]!
   eventParticipants(
-    currentPage: Int = 1
     cursor: CursorID
     eventUuid: String!
+    page: Int = 1
 
     """Max 50, Min 1"""
     take: Int = 10
-    targetPage: Int
   ): UserConnection!
   events(
-    currentPage: Int = 1
     cursor: CursorID
+    page: Int = 1
 
     """Max 50, Min 1"""
     take: Int = 10
-    targetPage: Int
   ): EventConnection!
   isAlive: Boolean!
   ping: String!
@@ -112,18 +111,21 @@ type Query {
   """Get connected user informations"""
   user_infos: User!
   users(
-    currentPage: Int = 1
     cursor: CursorID
+    page: Int = 1
 
     """Max 50, Min 1"""
     take: Int = 10
-    targetPage: Int
   ): UserConnection!
 }
 
 enum Role {
   ADMIN
   DEV
+}
+
+type Subscription {
+  eventCreated: User!
 }
 
 type Success {

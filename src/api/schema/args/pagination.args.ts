@@ -20,8 +20,7 @@ export const cursorArgs = (t: QueryFieldBuilderOptions) => {
       },
     }),
     cursor: t.arg({ type: 'CursorID', required: false }),
-    currentPage: t.arg.int({ required: false, defaultValue: 1 }),
-    targetPage: t.arg.int({ required: false }),
+    page: t.arg.int({ required: false, defaultValue: 1 }),
   };
 };
 
@@ -35,7 +34,7 @@ export const generateCursorFindMany = (
   const getCursorArgs = (crs: string | null | undefined) => {
     if (!crs) {
       return {
-        skip: args.take! * ((args.targetPage ?? args.currentPage!) - 1),
+        skip: args.take! * (args.page! - 1),
       };
     }
 
