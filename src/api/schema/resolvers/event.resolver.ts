@@ -1,5 +1,5 @@
 import { Event, EventCategories, Prisma, User } from '.prisma/client';
-import { prisma } from 'src/api/prisma-client';
+import { prisma } from '@api/prisma-client';
 import { uuidArg } from '../args/generic.args';
 import { cursorArgs, generateCursorFindMany } from '../args/pagination.args';
 import { builder } from '../builder';

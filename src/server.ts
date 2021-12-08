@@ -3,7 +3,6 @@ import {
   Context,
   datasourcesServices,
   IncomingNextMessage,
-  JWTPayload,
 } from '@api/schema/types';
 import { ServerResponse, createServer } from 'http';
 import {
@@ -13,10 +12,7 @@ import {
 import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
 import { graphqlUploadExpress } from 'graphql-upload';
-import { JWT_SECRET, resolverUserToken } from '@api/utils/jwt';
-import { verify } from 'jsonwebtoken';
-import { registerProviders } from '@api/auth.providers';
-import { useSession } from '@api/utils/session';
+import { resolverUserToken } from '@api/utils/jwt';
 import cookieParser from 'cookie-parser';
 import { PubSub } from 'graphql-subscriptions';
 import { execute, subscribe } from 'graphql';

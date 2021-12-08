@@ -1,4 +1,4 @@
-import { builder } from 'src/api/schema/builder';
+import { builder } from '@api/schema/builder';
 
 type Success = { success: boolean };
 

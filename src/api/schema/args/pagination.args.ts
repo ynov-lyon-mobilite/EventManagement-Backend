@@ -15,7 +15,7 @@ export const cursorArgs = (t: QueryFieldBuilderOptions) => {
       defaultValue: 10,
       description: 'Max 50, Min 1',
       validate: {
-        min: [1, { message: '1 min per request' }],
+        min: [1, { message: '1 min per request !' }],
         max: [50, { message: '50 max per request' }],
       },
     }),

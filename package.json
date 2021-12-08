@@ -2,10 +2,12 @@
   "name": "yvent-api",
   "version": "0.1.0",
   "scripts": {
-    "dev": "docker-compose up",
+    "dev": "concurrently -k -n 'DOCKER,PRISMA' 'docker-compose up' 'yarn prisma:dev-mode'",
+    "dev:api": "nodemon --exec 'ncc run -t' ./src/server.ts",
+    "dev:concurent": "concurrently -k -n 'COMPILER,API,PRISMA' 'npm run compile' 'npm run start' 'yarn prisma:dev-mode'",
+    "start": "nodemon  ./dist/server.js",
+    "build": "ncc build src/server.ts -o dist",
     "dev:next": "nodemon",
-    "build": "tsc",
-    "start": "node -r ts-node/register/transpile-only -r tsconfig-paths/register dist/server.js",
     "type-check": "tsc --noEmit",
     "prisma:docker": "docker-compose run next npx prisma",
     "prisma:docker:preview": "docker-compose run next npx prisma --preview-feature",
@@ -16,7 +18,8 @@
     "generate": "prisma generate",
     "codegen:graphql": "graphql-codegen",
     "prepare": "npm run generate && husky install",
-    "check-latest": "npx npm-check-updates -u"
+    "check-latest": "npx npm-check-updates -u",
+    "compile": "npx swc src --out-dir dist -w --sync"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
@@ -54,6 +57,8 @@
     "zod": "^3.11.6"
   },
   "devDependencies": {
+    "@swc/cli": "^0.1.52",
+    "@swc/core": "^1.2.118",
     "@types/bcryptjs": "^2.4.2",
     "@types/cookie-parser": "^1.4.2",
     "@types/express": "^4.17.13",
@@ -68,6 +73,7 @@
     "@types/passport-facebook": "^2.1.11",
     "@types/passport-google-oauth": "^1.0.42",
     "autoprefixer": "^10.3.7",
+    "concurrently": "^6.4.0",
     "husky": "^7.0.4",
     "nodemon": "^2.0.15",
     "postcss": "^8.3.11",

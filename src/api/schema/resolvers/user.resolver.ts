@@ -1,5 +1,3 @@
-import { builder } from 'src/api/schema/builder';
-import { prisma } from 'src/api/prisma-client';
 import { cursorArgs, generateCursorFindMany } from '../args/pagination.args';
 import { Prisma, RoleEnum, User } from '@prisma/client';
 import { uuidArg } from '../args/generic.args';
@@ -9,6 +7,8 @@ import { hash } from 'bcryptjs';
 import { EventObject } from './event.resolver';
 import { createConnection, createConnectionObject } from './edge.resolver';
 import { BookingObject } from './booking.resolver';
+import { builder } from '../builder';
+import { prisma } from '@api/prisma-client';
 
 export const UserObject = builder.objectRef<User>('User');
 export const UserConnection = createConnection(UserObject);
