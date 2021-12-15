@@ -5,7 +5,7 @@ import { cursorArgs, generateCursorFindMany } from '../args/pagination.args';
 import { builder } from '../builder';
 import { createConnection, createConnectionObject } from './edge.resolver';
 import { EventCategoryObject } from './event.category.resolver';
-import { CreatePriceInput, PriceObject } from './prices.resolver';
+import { PriceObject } from './prices.resolver';
 import { UserConnection, UserObject } from './user.resolver';
 
 export const EventObject = builder.objectRef<Event>('Event');
@@ -123,7 +123,6 @@ builder.mutationField('createEvent', (t) =>
       categoryUuid: uuidArg(t),
       startDate: t.arg({ type: 'Date' }),
       endDate: t.arg({ type: 'Date', required: false }),
-      prices: t.arg({ type: [CreatePriceInput], required: false }),
     },
     resolve: async (_, args, { dataSources }) => {
       const eventCategory = await prisma.eventCategories.findUnique({
@@ -143,16 +142,9 @@ builder.mutationField('createEvent', (t) =>
         endDate: args.endDate,
       });
 
-      if (args.prices) {
-        await dataSources.price.createPrices({
-          eventUuid: event.uuid,
-          prices: args.prices,
-        });
-      } else {
-        await dataSources.price.createPrice(event.uuid, {
-          amount: 0,
-        });
-      }
+      await dataSources.price.createPrice(event.uuid, {
+        amount: 0,
+      });
 
       return event;
     },
@@ -170,7 +162,6 @@ builder.mutationField('updateEvent', (t) =>
       categoryUuid: uuidArg(t, false),
       startDate: t.arg({ type: 'Date', required: false }),
       endDate: t.arg({ type: 'Date', required: false }),
-      prices: t.arg({ type: [CreatePriceInput], required: false }),
     },
     validate: ({ uuid, ...rest }) => {
       return Object.values(rest).some(
