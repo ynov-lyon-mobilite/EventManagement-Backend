@@ -6,7 +6,7 @@
     "dev:api": "nodemon  ./dist/server.js",
     "dev:concurent": "concurrently -k -n 'COMPILER,API,PRISMA' 'npm run build' 'npm run dev:api' 'yarn prisma:dev-mode'",
     "start": "prisma migrate deploy &&  node  ./dist/server.js",
-    "build": "npx swc src --out-dir dist -w --sync",
+    "build": "mkdir -p dist && npx swc src --out-dir dist -w --sync",
     "dev:next": "nodemon",
     "type-check": "tsc --noEmit",
     "prisma:docker": "docker-compose run server npx prisma",
@@ -79,5 +79,8 @@
     "prettier": "^2.4.1",
     "prisma": "^3.5.0",
     "typescript": "4.5.2"
+  },
+  "engines": {
+    "node": "16.x"
   }
 }
