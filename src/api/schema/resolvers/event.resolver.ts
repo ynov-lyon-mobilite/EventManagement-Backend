@@ -16,7 +16,7 @@ builder.objectType(EventObject, {
     uuid: t.exposeString('uuid'),
     title: t.exposeString('title'),
     startDate: t.expose('startDate', { type: 'Date' }),
-    endDate: t.expose('startDate', { type: 'Date' }),
+    endDate: t.expose('endDate', { type: 'Date', nullable: true }),
     description: t.exposeString('description', { nullable: true }),
     prices: t.field({
       type: [PriceObject],
