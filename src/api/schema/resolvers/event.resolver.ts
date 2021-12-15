@@ -144,7 +144,7 @@ builder.mutationField('createEvent', (t) =>
       });
 
       await dataSources.price.createPrice(event.uuid, {
-        amount: args.amount ? args.amount * 100 : 0,
+        amount: args.amount ?? 0,
       });
 
       return event;
