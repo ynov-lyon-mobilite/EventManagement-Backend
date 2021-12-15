@@ -12,13 +12,13 @@ export class PriceService {
     const price = await stripe.prices.create({
       currency: 'eur',
       product: event.stripeProductId,
-      unit_amount: data.price ?? 0,
+      unit_amount: data.amount ?? 0,
     });
 
     return prisma.eventPrices.create({
       data: {
         event: { connect: { uuid: eventUuid } },
-        price: data.price ?? 0,
+        amount: data.amount ?? 0,
         description: data.description ?? 'default',
         stripePriceId: price.id,
       },

@@ -18,7 +18,7 @@ builder.objectType(BookingObject, {
         const eventPrice = await prisma.booking
           .findUnique({ where: { uuid: root.uuid } })
           .eventPrice();
-        return eventPrice?.price;
+        return eventPrice?.amount;
       },
     }),
     event: t.field({

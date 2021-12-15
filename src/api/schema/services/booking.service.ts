@@ -15,7 +15,7 @@ export class BookingService extends Service {
       booking.user.email,
       `Réservation ${eventTitle}`,
       'BookingConfirmation',
-      { eventTitle: eventTitle, price: booking.eventPrice.price }
+      { eventTitle: eventTitle, price: booking.eventPrice.amount }
     );
 
     return booking;
