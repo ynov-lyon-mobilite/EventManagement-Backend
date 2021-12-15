@@ -34,28 +34,6 @@ builder.mutationField('createPrice', (t) =>
   })
 );
 
-builder.mutationField('updatePrice', (t) =>
-  t.field({
-    type: PriceObject,
-    authScopes: { isAdmin: true },
-    args: {
-      uuid: t.arg.string(),
-      amount: t.arg.float(),
-      description: t.arg.string({ required: false }),
-    },
-    resolve: async (_, args, { dataSources }) => {
-      const price = await prisma.eventPrices.findUnique({
-        where: { uuid: args.uuid },
-      });
-
-      return dataSources.price.updatePrice(price.uuid, {
-        amount: args.amount,
-        description: args.description ?? undefined,
-      });
-    },
-  })
-);
-
 builder.mutationField('deletePrice', (t) =>
   t.field({
     type: PriceObject,
