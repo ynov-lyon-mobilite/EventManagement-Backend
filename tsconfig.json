@@ -6,12 +6,14 @@
     "skipLibCheck": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
-    "noEmit": true,
+    "noEmit": false,
     "esModuleInterop": true,
     "noUnusedLocals": true,
     "strictNullChecks": true,
     "noUnusedParameters": true,
     "module": "CommonJS",
+    "outDir": "dist",
+    "rootDir": "./src",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
@@ -30,6 +32,6 @@
   "ts-node": {
     "transpileOnly": true
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules"]
+  "include": ["next-env.d.ts", "**/*.ts"],
+  "exclude": ["node_modules", "prisma"]
 }

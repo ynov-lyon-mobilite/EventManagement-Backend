@@ -15,13 +15,12 @@ export const cursorArgs = (t: QueryFieldBuilderOptions) => {
       defaultValue: 10,
       description: 'Max 50, Min 1',
       validate: {
-        min: [1, { message: '1 min per request' }],
+        min: [1, { message: '1 min per request !' }],
         max: [50, { message: '50 max per request' }],
       },
     }),
     cursor: t.arg({ type: 'CursorID', required: false }),
-    currentPage: t.arg.int({ required: false, defaultValue: 1 }),
-    targetPage: t.arg.int({ required: false }),
+    page: t.arg.int({ required: false, defaultValue: 1 }),
   };
 };
 
@@ -35,7 +34,7 @@ export const generateCursorFindMany = (
   const getCursorArgs = (crs: string | null | undefined) => {
     if (!crs) {
       return {
-        skip: args.take! * ((args.targetPage ?? args.currentPage!) - 1),
+        skip: args.take! * (args.page! - 1),
       };
     }
 

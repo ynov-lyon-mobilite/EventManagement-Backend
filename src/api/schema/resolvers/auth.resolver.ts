@@ -1,21 +1,33 @@
-import { prisma } from 'src/api/prisma-client';
-import { builder } from 'src/api/schema/builder';
-import { compare, hash } from 'bcryptjs';
-import { SuccessObject } from './sucess.resolver';
+import { compare } from 'bcryptjs';
 import { UserObject } from './user.resolver';
 import { emailArg, passwordArg, usernameArg } from '../args/user.args';
-import { destroySession } from '@api/utils/session';
+import { sign } from 'jsonwebtoken';
+import { JWT_SECRET } from '@api/utils/jwt';
+import { User } from '.prisma/client';
+import { builder } from '../builder';
+import { prisma } from '@api/prisma-client';
+
+const UserAuthObject = builder.objectRef<{ user: User } & { jwt: string }>(
+  'UserAuth'
+);
+
+builder.objectType(UserAuthObject, {
+  fields: (t) => ({
+    user: t.expose('user', { type: UserObject }),
+    jwt: t.exposeString('jwt'),
+  }),
+});
 
 builder.mutationField('login', (t) =>
   t.field({
-    type: UserObject,
+    type: UserAuthObject,
     args: {
-      username: usernameArg(t),
+      email: emailArg(t),
       password: passwordArg(t),
     },
-    resolve: async (_, { username, password }, ctx) => {
+    resolve: async (_, { email, password }, ctx) => {
       const user = await prisma.user.findUnique({
-        where: { username },
+        where: { email },
       });
 
       if (!user) throw new Error('Invalid credentials');
@@ -23,36 +35,31 @@ builder.mutationField('login', (t) =>
         const isPassValid = await compare(password, user.password);
         if (!isPassValid) throw new Error('Invalid credentials');
       }
-      ctx.req.session.user = user;
+      //TODO
+      const jwt = sign(user, JWT_SECRET);
       ctx.user = user;
-      return user;
+      return { user, jwt };
     },
   })
 );
 
 builder.mutationField('register', (t) =>
   t.field({
-    type: UserObject,
+    type: UserAuthObject,
     args: {
-      username: usernameArg(t),
+      displayName: usernameArg(t),
       password: passwordArg(t),
       email: emailArg(t),
     },
-    resolve: async (_root, { password, email, username }, ctx) => {
-      const hashPassword = await hash(password, 4);
-      const user = await prisma.user.create({
-        data: {
-          displayName: username,
-          username,
-          password: hashPassword,
-          email,
-          roles: {
-            set: 'DEV',
-          },
-        },
+    resolve: async (_root, { password, email, displayName }, ctx) => {
+      const user = await ctx.dataSources.user.createUser({
+        password,
+        email,
+        displayName,
       });
-      ctx.req.session.user = user;
-      return user;
+      const jwt = sign(user, JWT_SECRET);
+      ctx.user = user;
+      return { user, jwt };
     },
   })
 );
@@ -68,17 +75,6 @@ builder.queryField('user_infos', (t) =>
       return prisma.user.findUnique({
         where: { uuid: user!.uuid },
       });
-    },
-  })
-);
-
-builder.mutationField('logout', (t) =>
-  t.field({
-    type: SuccessObject,
-    authScopes: { isLogged: true },
-    resolve: async (_root, _arg, ctx) => {
-      await destroySession(ctx.req);
-      return { success: true };
     },
   })
 );

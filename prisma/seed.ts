@@ -7,15 +7,27 @@ async function main() {
   const password = await hash('hophop', 4);
 
   await prisma.user.upsert({
-    where: { username: 'pelcatmart' },
+    where: { email: 'martin.pelcat@yvent.com' },
     update: {},
     create: {
       displayName: 'Martin PELCAT',
-      username: `pelcatmart`,
       email: 'martin.pelcat@yvent.com',
       password,
       roles: {
-        set: ['ADMIN', 'DEV'],
+        set: [],
+      },
+    },
+  });
+
+  await prisma.user.upsert({
+    where: { email: 'admin@yvent.com' },
+    update: {},
+    create: {
+      displayName: 'Admin YVENT',
+      email: 'admin@yvent.com',
+      password,
+      roles: {
+        set: ['ADMIN'],
       },
     },
   });

@@ -1,0 +1,28 @@
+{
+  "minify": false,
+  "jsc": {
+    "paths": {
+      "@api/*": ["./api/*"],
+      "@services/*": ["./api/services/*"],
+      "@utils/*": ["./api/utils/*"],
+      "@clients/*": ["./api/clients/*"],
+      "@types": ["./api/graphql/types/index.ts"]
+    },
+    "baseUrl": "./dist/",
+    "parser": {
+      "syntax": "typescript",
+      "dynamicImport": true
+    },
+    "target": "es2020",
+    "keepClassNames": true,
+    "loose": true
+  },
+  "module": {
+    "type": "commonjs",
+    "strict": true,
+    "strictMode": true,
+    "lazy": false,
+    "noInterop": false
+  },
+  "sourceMaps": "inline"
+}

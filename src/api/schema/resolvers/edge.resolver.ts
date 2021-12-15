@@ -138,7 +138,7 @@ const computePageInfos = (
   const totalPages = Math.abs(Math.ceil(count / take));
 
   const response: PageInfo['pageInfo'] = {
-    currentPage: args.targetPage ?? args.currentPage!,
+    currentPage: args.page!,
     hasNextPage: false,
     hasPreviousPage: false,
     totalPages,
@@ -156,9 +156,5 @@ const computePageInfos = (
 export const getTakeArgument = (
   args: InputShapeFromFields<ReturnType<typeof cursorArgs>>
 ) => {
-  const value = args.take! || 10;
-  if (args.targetPage && args.currentPage! > args.targetPage) {
-    return -Math.abs(value);
-  }
-  return value;
+  return args.take! || 10;
 };

@@ -14,21 +14,23 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres
 
-  next:
+  server:
     container_name: yvent-application
     restart: unless-stopped
-    image: node:16
-    command: npm run dev:next
+    build: .
+    command: npm run dev:concurent
     ports:
       - 3000:3000
     volumes:
-      - .:/srv/next:rw
-    working_dir: /srv/next
+      - .:/srv/api:rw
+      - /srv/api/node_modules
+      - ./node_modules/.prisma:/srv/api/node_modules/.prisma:rw
+    working_dir: /srv/api
     env_file:
       - .env
     depends_on:
       - yvent-postgres
 
 volumes:
-  yvent-postgres:
-  next:
+  yvent-postgres: null
+  server: null

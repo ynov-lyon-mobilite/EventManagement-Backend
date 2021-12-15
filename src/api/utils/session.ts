@@ -2,11 +2,15 @@ import { IncomingNextMessage } from '@api/schema/types';
 import session from 'express-session';
 
 export const useSession = session({
-  secret: process.env.SESSION_SECRET ?? '',
+  secret: process.env.SESSION_SECRET ?? 'PQE1DhbY3Ambybt6NLgQaNGZnnFAHHGL',
   name: 'yvent-api',
-  resave: false,
+  resave: true,
   saveUninitialized: false,
-  cookie: { secure: process.env.NODE_ENV === 'production' },
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    sameSite: 'strict',
+  },
 });
 
 export const destroySession = (req: IncomingNextMessage) => {
