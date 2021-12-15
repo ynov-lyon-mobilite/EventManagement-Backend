@@ -1,7 +1,7 @@
-import { Context } from './context';
+import { CommonContext } from './context';
 
 export type ShemaBuilderOptions = {
-  Context: Context;
+  Context: CommonContext;
   Scalars: {
     Date: {
       Input: Date;

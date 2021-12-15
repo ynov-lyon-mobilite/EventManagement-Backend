@@ -123,7 +123,7 @@ builder.mutationField('createEvent', (t) =>
       categoryUuid: uuidArg(t),
       startDate: t.arg({ type: 'Date' }),
       endDate: t.arg({ type: 'Date', required: false }),
-      price: t.arg.float({ required: false }),
+      amount: t.arg.float({ required: false }),
     },
     resolve: async (_, args, { dataSources }) => {
       const eventCategory = await prisma.eventCategories.findUnique({
@@ -144,7 +144,7 @@ builder.mutationField('createEvent', (t) =>
       });
 
       await dataSources.price.createPrice(event.uuid, {
-        price: args.price ?? 0,
+        amount: args.amount ?? 0,
       });
 
       return event;
@@ -201,14 +201,27 @@ builder.mutationField('deleteEvent', (t) =>
 
 builder.mutationField('joinEvent', (t) =>
   t.field({
-    deprecationReason: 'Not implemented yet',
     description: 'Pay to join the event',
-    type: EventObject,
+    type: 'String',
     authScopes: { isLogged: true },
     args: {
-      uuid: uuidArg(t),
+      eventUuid: uuidArg(t),
+      priceUuid: uuidArg(t),
+      successUrl: t.arg.string({
+        description: 'Url to redirect to on success',
+      }),
+      cancelUrl: t.arg.string({
+        description: 'Url to redirect to on cancel',
+      }),
     },
-    resolve: () => {
+    resolve: (_, args, { user, dataSources }) => {
+      dataSources.event.joinEvent(
+        user!,
+        args.eventUuid,
+        args.priceUuid,
+        args.successUrl,
+        args.cancelUrl
+      );
       throw new Error('Not implemented yet');
     },
   })
@@ -247,12 +260,12 @@ builder.mutationField('createPrice', (t) =>
     type: PriceObject,
     args: {
       eventUuid: t.arg.string(),
-      price: t.arg.float(),
+      amount: t.arg.float(),
       description: t.arg.string({ required: false }),
     },
-    resolve: (_, { eventUuid, price, description }, { dataSources }) => {
+    resolve: (_, { eventUuid, amount, description }, { dataSources }) => {
       return dataSources.price.createPrice(eventUuid, {
-        price,
+        amount,
         description: description ?? undefined,
       });
     },

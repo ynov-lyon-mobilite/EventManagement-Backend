@@ -49,7 +49,7 @@ model EventPrices {
   uuid          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   event         Event     @relation(fields: [eventUuid], references: [uuid])
   description   String
-  price         Float
+  amount        Float
   createdAt     DateTime  @default(now()) @db.Timestamptz
   updatedAt     DateTime  @default(now()) @updatedAt @db.Timestamptz
   eventUuid     String    @db.Uuid
@@ -76,6 +76,5 @@ model Booking {
 }
 
 enum RoleEnum {
-  DEV
   ADMIN
 }

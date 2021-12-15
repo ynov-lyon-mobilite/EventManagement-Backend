@@ -2,11 +2,11 @@ import SchemaBuilder from '@giraphql/core';
 import SimpleObjectsPlugin from '@giraphql/plugin-simple-objects';
 import ScopeAuthPlugin from '@giraphql/plugin-scope-auth';
 import ValidationPlugin from '@giraphql/plugin-validation';
-import { Context, ShemaBuilderOptions } from 'src/api/schema/types';
+import { CommonContext, ShemaBuilderOptions } from 'src/api/schema/types';
 
 export const builder = new SchemaBuilder<ShemaBuilderOptions>({
   plugins: [SimpleObjectsPlugin, ScopeAuthPlugin, ValidationPlugin],
-  authScopes: async ({ user }: Context) => {
+  authScopes: async ({ user }: CommonContext) => {
     const auth: ShemaBuilderOptions['AuthScopes'] = {
       isLogged: false,
       isAdmin: false,

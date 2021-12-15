@@ -21,13 +21,18 @@ export type IncomingNextMessage = IncomingMessage & { session: Session } & {
 
 export type JWTPayload = User;
 
-export type Context = {
-  req: IncomingNextMessage;
-  res: ServerResponse;
+export type CommonContext = {
   user: SessionUserPayload | undefined;
   dataSources: DataSources;
   pubsub: PubSub;
 };
+
+export type HttpContext = CommonContext & {
+  req: IncomingNextMessage;
+  res: ServerResponse;
+};
+
+export type SubscriptionContext = CommonContext;
 
 export type DataSources = typeof datasourcesServices;
 

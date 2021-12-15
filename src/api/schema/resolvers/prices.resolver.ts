@@ -7,6 +7,6 @@ builder.objectType(PriceObject, {
   fields: (t) => ({
     uuid: t.exposeString('uuid'),
     description: t.exposeString('description'),
-    price: t.exposeFloat('price'),
+    amount: t.exposeFloat('amount'),
   }),
 });

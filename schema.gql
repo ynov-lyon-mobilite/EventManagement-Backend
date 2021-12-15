@@ -54,16 +54,24 @@ type EventNode {
 
 type Mutation {
   createBooking(eventPriceUuid: String!): Booking!
-  createEvent(categoryUuid: String!, description: String, endDate: Date, price: Float, startDate: Date!, title: String!): Event!
+  createEvent(amount: Float, categoryUuid: String!, description: String, endDate: Date, startDate: Date!, title: String!): Event!
   createEventCategory(name: String!): EventCategory!
-  createPrice(description: String, eventUuid: String!, price: Float!): Price!
+  createPrice(amount: Float!, description: String, eventUuid: String!): Price!
   deleteEvent(uuid: String!): Event!
   deleteEventCategories(uuids: [String!]!): [EventCategory!]!
   deleteEventCategory(uuid: String!): EventCategory!
   deleteUser(uuid: String!): User!
 
   """Pay to join the event"""
-  joinEvent(uuid: String!): Event! @deprecated(reason: "Not implemented yet")
+  joinEvent(
+    """Url to redirect to on cancel"""
+    cancelUrl: String!
+    eventUuid: String!
+    priceUuid: String!
+
+    """Url to redirect to on success"""
+    successUrl: String!
+  ): String!
   login(email: String!, password: String!): UserAuth!
   register(displayName: String!, email: String!, password: String!): UserAuth!
   restoreEventCategory(uuid: String!): EventCategory!
@@ -81,8 +89,8 @@ type PageInfo {
 }
 
 type Price {
+  amount: Float!
   description: String!
-  price: Float!
   uuid: String!
 }
 
@@ -121,7 +129,6 @@ type Query {
 
 enum Role {
   ADMIN
-  DEV
 }
 
 type Subscription {

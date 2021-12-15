@@ -24,23 +24,12 @@ services:
     volumes:
       - .:/srv/api:rw
       - /srv/api/node_modules
+      - ./node_modules/.prisma:/srv/api/node_modules/.prisma:rw
     working_dir: /srv/api
     env_file:
       - .env
     depends_on:
       - yvent-postgres
-
-  compiler:
-    container_name: yvent-compile
-    restart: unless-stopped
-    build: .
-    command: npm run prisma:dev-mode
-    volumes:
-      - .:/srv/compiler:rw
-      - /srv/compiler/node_modules
-    working_dir: /srv/compiler
-    depends_on:
-      - server
 
 volumes:
   yvent-postgres: null

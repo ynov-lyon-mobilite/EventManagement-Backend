@@ -1,8 +1,10 @@
 import { schema } from '@api/schema';
 import {
-  Context,
+  CommonContext,
   datasourcesServices,
+  HttpContext,
   IncomingNextMessage,
+  SubscriptionContext,
 } from '@api/schema/types';
 import { ServerResponse, createServer } from 'http';
 import {
@@ -37,20 +39,13 @@ async function startApolloServer() {
       schema,
       execute,
       subscribe,
-      onConnect: async (connectionParams: any) => {
+      onConnect: (connectionParams: any): SubscriptionContext => {
         const { authorization } = connectionParams;
-        console.log('onConnect', authorization);
-
         const user = resolverUserToken(authorization);
-        console.log(user);
-
-        // if (!authorization) {
-        //   throw new Error('No authorization token');
-        // }
-        // const token = authorization.split(' ')[1];
-        // const payload = verify(token, JWT_SECRET) as JWTPayload;
         return {
           pubsub,
+          dataSources: datasourcesServices,
+          user,
         };
       },
     },
@@ -78,16 +73,12 @@ async function startApolloServer() {
         },
       },
     ],
-    context: ({ req, res }: HandlerContext): Omit<Context, 'dataSources'> => {
+    context: ({
+      req,
+      res,
+    }: HandlerContext): Omit<HttpContext, 'dataSources'> => {
       const jwt = req.headers['authorization'];
-
-      let user: Context['user'];
-      if (typeof jwt === 'string') {
-        try {
-          user = resolverUserToken(jwt);
-        } catch (error) {}
-      }
-
+      let user: CommonContext['user'] = resolverUserToken(jwt);
       return { req, res, user, pubsub };
     },
   });

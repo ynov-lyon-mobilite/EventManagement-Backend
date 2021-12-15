@@ -37,7 +37,6 @@ builder.mutationField('login', (t) =>
       }
       //TODO
       const jwt = sign(user, JWT_SECRET);
-      ctx.req.session.user = user;
       ctx.user = user;
       return { user, jwt };
     },
@@ -57,14 +56,9 @@ builder.mutationField('register', (t) =>
         password,
         email,
         displayName,
-        roles: {
-          set: 'DEV',
-        },
       });
       const jwt = sign(user, JWT_SECRET);
       ctx.user = user;
-      ctx.req.session.user = user;
-
       return { user, jwt };
     },
   })
