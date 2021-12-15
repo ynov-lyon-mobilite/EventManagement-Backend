@@ -52,10 +52,10 @@
   dependencies:
     "@cspotcode/source-map-consumer" "0.8.0"
 
-"@giraphql/core@^2.19.0":
-  version "2.19.0"
-  resolved "https://registry.yarnpkg.com/@giraphql/core/-/core-2.19.0.tgz#3fcb6f087890b331749ec4793ec5660899610a3f"
-  integrity sha512-QMozhNIVNaOnNRDoYtTKacp+CErzmxqs8kTRAieuuRRPUibFT73hZ8/6VcLG240DpWlstOSfcWsPZMwDIm9Lkw==
+"@giraphql/core@^2.22.0":
+  version "2.22.0"
+  resolved "https://registry.yarnpkg.com/@giraphql/core/-/core-2.22.0.tgz#2982d1c196ed623d105b9276ce01d9aa6c5b488c"
+  integrity sha512-2rR3ZlcOx8xBduiQJY7hEZkKbvetDSmopslBoamqgd/CbvJPthHwAtUA113nttCM7ITkNzpSX0YcOXyE6E0xNw==
 
 "@giraphql/plugin-scope-auth@^2.13.1":
   version "2.13.1"
