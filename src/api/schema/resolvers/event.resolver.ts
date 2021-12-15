@@ -215,14 +215,13 @@ builder.mutationField('joinEvent', (t) =>
       }),
     },
     resolve: (_, args, { user, dataSources }) => {
-      dataSources.event.joinEvent(
+      return dataSources.event.joinEvent(
         user!,
         args.eventUuid,
         args.priceUuid,
         args.successUrl,
         args.cancelUrl
       );
-      throw new Error('Not implemented yet');
     },
   })
 );

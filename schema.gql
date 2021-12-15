@@ -20,7 +20,7 @@ scalar Date
 type Event {
   category: EventCategory!
   description: String
-  endDate: Date!
+  endDate: Date
   participants(
     cursor: CursorID
     page: Int = 1
