@@ -4,9 +4,9 @@
   "scripts": {
     "dev": "mkdir -p dist && docker-compose up",
     "dev:api": "nodemon  ./dist/server.js",
-    "dev:concurent": "concurrently -k -n 'COMPILER,API,PRISMA' 'npm run build' 'npm run dev:api' 'yarn prisma:dev-mode'",
+    "dev:concurent": "concurrently -k -n 'COMPILER,API,PRISMA' 'npm run compile' 'npm run dev:api' 'yarn prisma:dev-mode'",
     "start": "prisma migrate deploy &&  node  ./dist/server.js",
-    "build": "mkdir -p dist && npx swc src --out-dir dist -w --sync",
+    "build": "npx swc src --out-dir dist",
     "dev:next": "nodemon",
     "type-check": "tsc --noEmit",
     "prisma:docker": "docker-compose run server npx prisma",
@@ -18,7 +18,8 @@
     "generate": "prisma generate",
     "codegen:graphql": "graphql-codegen",
     "prepare": "npm run generate && husky install",
-    "check-latest": "npx npm-check-updates -u"
+    "check-latest": "npx npm-check-updates -u",
+    "compile": "npx swc src --out-dir dist -w --sync"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
