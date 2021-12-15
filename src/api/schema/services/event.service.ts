@@ -67,7 +67,7 @@ export class EventService {
         event: true,
       },
       where: {
-        uuid: eventUuid,
+        uuid: priceUuid,
       },
     });
     const isSameEvent = price.event.uuid === eventUuid;
@@ -105,6 +105,7 @@ export class EventService {
       payment_method_types: ['card'],
       line_items: [
         {
+          quantity: 1,
           price: price.stripePriceId,
         },
       ],
