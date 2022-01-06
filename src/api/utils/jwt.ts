@@ -9,6 +9,12 @@ export const resolverUserToken = (
   jwt: string | undefined
 ): CommonContext['user'] => {
   if (!jwt) return undefined;
-  if (!jwt.startsWith('Bearer ')) return verify(jwt, JWT_SECRET) as JWTPayload;
-  return verify(jwt.slice(7), JWT_SECRET) as JWTPayload;
+  try {
+    if (!jwt.startsWith('Bearer ')) {
+      return verify(jwt, JWT_SECRET) as JWTPayload;
+    }
+    return verify(jwt.slice(7), JWT_SECRET) as JWTPayload;
+  } catch (error) {
+    return undefined;
+  }
 };
