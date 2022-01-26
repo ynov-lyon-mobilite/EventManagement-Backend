@@ -15,8 +15,6 @@ export class EventService {
     });
 
     if (!event.endDate) event.endDate = addDays(new Date(event.startDate), 1);
-    console.log('event.endDate', event.endDate);
-    console.log('event.startDate', event.startDate);
 
     return prisma.event.create({
       data: {

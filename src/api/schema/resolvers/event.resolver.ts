@@ -146,7 +146,7 @@ builder.mutationField('createEvent', (t) =>
         amount: 0,
       });
 
-      pubsub.publish('newEvent', { event });
+      pubsub.publish('newEvent', { ...event });
 
       return event;
     },
@@ -297,10 +297,7 @@ builder.mutationField('testSub', (t) =>
 builder.subscriptionField('newEvent', (t) =>
   t.field({
     type: EventObject,
-    resolve: (root) => {
-      console.log(root);
-      return prisma.event.findFirst();
-    },
+    resolve: (root: Event) => root,
     subscribe: (_, _args, { pubsub }) => {
       return pubsub.asyncIterator('newEvent');
     },
