@@ -28,12 +28,13 @@ builder.mutationField('login', (t) =>
     resolve: async (_, { email, password }, ctx) => {
       const user = await prisma.user.findUnique({
         where: { email },
+        rejectOnNotFound: true,
       });
 
-      if (!user) throw new Error('Invalid credentials');
+      if (!user) throw new Error('Identifiants invalides');
       if (user.password) {
         const isPassValid = await compare(password, user.password);
-        if (!isPassValid) throw new Error('Invalid credentials');
+        if (!isPassValid) throw new Error('Identifiants invalides');
       }
       //TODO
       const jwt = sign(user, JWT_SECRET);
