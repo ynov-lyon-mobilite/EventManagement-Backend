@@ -18,6 +18,26 @@ builder.objectType(EventObject, {
     startDate: t.expose('startDate', { type: 'Date' }),
     endDate: t.expose('endDate', { type: 'Date', nullable: true }),
     description: t.exposeString('description', { nullable: true }),
+    nbPlaces: t.exposeInt('nbPlaces'),
+    deletedAt: t.expose('deletedAt', { type: 'Date', nullable: true }),
+    restPlaces: t.field({
+      type: 'Int',
+      resolve: async (event) => {
+        const { nbPlaces } = event;
+
+        const bookings = await prisma.booking.count({
+          where: {
+            eventPrice: {
+              event: {
+                uuid: event.uuid,
+              },
+            },
+          },
+        });
+
+        return nbPlaces === 0 ? 9999 : nbPlaces - bookings;
+      },
+    }),
     prices: t.field({
       type: [PriceObject],
       resolve: ({ uuid }) => {
@@ -82,11 +102,17 @@ builder.queryField('events', (t) =>
     type: EventConnection,
     args: {
       ...cursorArgs(t),
+      deleted: t.arg.boolean({ defaultValue: false, required: false }),
     },
     resolve: (_, args) => {
       const findArgs = generateCursorFindMany(args);
 
-      const where = { startDate: { gt: new Date() } };
+      const where: Prisma.EventWhereInput = {
+        AND: [
+          { startDate: { gt: new Date() } },
+          { deletedAt: args.deleted ? { not: null } : null },
+        ],
+      };
 
       return createConnectionObject({
         args,
@@ -123,6 +149,7 @@ builder.mutationField('createEvent', (t) =>
       categoryUuid: uuidArg(t),
       startDate: t.arg({ type: 'Date' }),
       endDate: t.arg({ type: 'Date', required: false }),
+      nbPlaces: t.arg.int({ required: false, defaultValue: 0 }),
     },
     resolve: async (_, args, { dataSources, pubsub }) => {
       const eventCategory = await prisma.eventCategories.findUnique({
@@ -140,6 +167,7 @@ builder.mutationField('createEvent', (t) =>
         startDate: args.startDate,
         category: { connect: { uuid: args.categoryUuid } },
         endDate: args.endDate,
+        nbPlaces: args.nbPlaces!,
       });
 
       await dataSources.price.createPrice(event.uuid, {

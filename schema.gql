@@ -7,11 +7,6 @@ type Booking {
   uuid: String!
 }
 
-input CreatePriceInput {
-  amount: Float!
-  description: String!
-}
-
 type Cursor {
   current: CursorID
   take: Int!
@@ -26,6 +21,7 @@ type Event {
   category: EventCategory!
   description: String
   endDate: Date
+  nbPlaces: Int!
   participants(
     cursor: CursorID
     page: Int = 1
@@ -35,6 +31,7 @@ type Event {
   ): UserConnection!
   participantsCount: Int!
   prices: [Price!]!
+  restPlaces: Int!
   startDate: Date!
   title: String!
   uuid: String!
@@ -59,12 +56,13 @@ type EventNode {
 
 type Mutation {
   createBooking(eventPriceUuid: String!): Booking!
-  createEvent(categoryUuid: String!, description: String, endDate: Date, prices: [CreatePriceInput!], startDate: Date!, title: String!): Event!
+  createEvent(categoryUuid: String!, description: String, endDate: Date, nbPlaces: Int = 0, startDate: Date!, title: String!): Event!
   createEventCategory(name: String!): EventCategory!
   createPrice(amount: Float!, description: String, eventUuid: String!): Price!
   deleteEvent(uuid: String!): Event!
   deleteEventCategories(uuids: [String!]!): [EventCategory!]!
   deleteEventCategory(uuid: String!): EventCategory!
+  deletePrice(uuid: String!): Price!
   deleteUser(uuid: String!): User!
 
   """Pay to join the event"""
@@ -81,7 +79,7 @@ type Mutation {
   register(displayName: String!, email: String!, password: String!): UserAuth!
   restoreEventCategory(uuid: String!): EventCategory!
   testSub: Boolean!
-  updateEvent(categoryUuid: String, description: String, endDate: Date, prices: [CreatePriceInput!], startDate: Date, title: String, uuid: String!): Event!
+  updateEvent(categoryUuid: String, description: String, endDate: Date, startDate: Date, title: String, uuid: String!): Event!
   updateEventCategory(name: String!, uuid: String!): EventCategory!
   updateUser(displayName: String, email: String, password: String, roles: [Role!], uuid: String!): User!
 }
@@ -112,6 +110,7 @@ type Query {
   ): UserConnection!
   events(
     cursor: CursorID
+    deleted: Boolean = false
     page: Int = 1
 
     """Max 50, Min 1"""
@@ -138,6 +137,7 @@ enum Role {
 
 type Subscription {
   eventCreated: User!
+  newEvent: Event!
 }
 
 type Success {
