@@ -103,13 +103,19 @@ builder.queryField('events', (t) =>
     args: {
       ...cursorArgs(t),
       deleted: t.arg.boolean({ defaultValue: false, required: false }),
+      includePastEvents: t.arg.boolean({
+        defaultValue: false,
+        required: false,
+      }),
     },
     resolve: (_, args) => {
       const findArgs = generateCursorFindMany(args);
 
       const where: Prisma.EventWhereInput = {
         AND: [
-          { startDate: { gt: new Date() } },
+          {
+            startDate: args.includePastEvents ? undefined : { gt: new Date() },
+          },
           { deletedAt: args.deleted ? undefined : null },
         ],
       };
