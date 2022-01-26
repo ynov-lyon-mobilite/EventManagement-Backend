@@ -1,13 +1,11 @@
-import { compare, hash } from 'bcryptjs';
-import { UserObject } from './user.resolver';
-import { emailArg, passwordArg, usernameArg } from '../args/user.args';
-import { sign } from 'jsonwebtoken';
-import { JWT_SECRET } from '@api/utils/jwt';
 import { User } from '.prisma/client';
-import { builder } from '../builder';
 import { prisma } from '@api/prisma-client';
-import { use } from 'passport';
-import { url } from 'inspector';
+import { JWT_SECRET } from '@api/utils/jwt';
+import { compare, hash } from 'bcryptjs';
+import { sign } from 'jsonwebtoken';
+import { emailArg, passwordArg, usernameArg } from '../args/user.args';
+import { builder } from '../builder';
+import { UserObject } from './user.resolver';
 
 const UserAuthObject = builder.objectRef<{ user: User } & { jwt: string }>(
   'UserAuth'
