@@ -1,11 +1,11 @@
-import { compare } from 'bcryptjs';
-import { UserObject } from './user.resolver';
-import { emailArg, passwordArg, usernameArg } from '../args/user.args';
-import { sign } from 'jsonwebtoken';
-import { JWT_SECRET } from '@api/utils/jwt';
 import { User } from '.prisma/client';
-import { builder } from '../builder';
 import { prisma } from '@api/prisma-client';
+import { JWT_SECRET } from '@api/utils/jwt';
+import { compare, hash } from 'bcryptjs';
+import { sign } from 'jsonwebtoken';
+import { emailArg, passwordArg, usernameArg } from '../args/user.args';
+import { builder } from '../builder';
+import { UserObject } from './user.resolver';
 
 const UserAuthObject = builder.objectRef<{ user: User } & { jwt: string }>(
   'UserAuth'
@@ -75,6 +75,36 @@ builder.queryField('user_infos', (t) =>
       return prisma.user.findUnique({
         where: { uuid: user!.uuid },
       });
+    },
+  })
+);
+
+builder.mutationField('changePassword', (t) =>
+  t.field({
+    type: 'Boolean',
+    args: {
+      oldPassword: passwordArg(t),
+      newPassword: passwordArg(t),
+    },
+    authScopes: { isLogged: true },
+    resolve: async (_root, { oldPassword, newPassword }, { user }) => {
+      const usr = await prisma.user.findUnique({
+        where: { uuid: user!.uuid },
+      });
+
+      if (usr.password) {
+        const isPassValid = await compare(oldPassword, usr.password);
+        if (!isPassValid) return false;
+      }
+
+      const password = await hash(newPassword, 10);
+
+      prisma.user.update({
+        where: { uuid: user!.uuid },
+        data: { password },
+      });
+
+      return true;
     },
   })
 );

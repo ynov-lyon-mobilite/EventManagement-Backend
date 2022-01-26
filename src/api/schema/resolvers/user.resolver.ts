@@ -1,14 +1,13 @@
-import { cursorArgs, generateCursorFindMany } from '../args/pagination.args';
+import { prisma } from '@api/prisma-client';
 import { Prisma, RoleEnum, User } from '@prisma/client';
 import { uuidArg } from '../args/generic.args';
-import { isOwnerOrAdmin } from '../validation/isOwnerOrAdmin';
-import { emailArg, passwordArg } from '../args/user.args';
-import { hash } from 'bcryptjs';
-import { EventObject } from './event.resolver';
-import { createConnection, createConnectionObject } from './edge.resolver';
-import { BookingObject } from './booking.resolver';
+import { cursorArgs, generateCursorFindMany } from '../args/pagination.args';
+import { emailArg } from '../args/user.args';
 import { builder } from '../builder';
-import { prisma } from '@api/prisma-client';
+import { isOwnerOrAdmin } from '../validation/isOwnerOrAdmin';
+import { BookingObject } from './booking.resolver';
+import { createConnection, createConnectionObject } from './edge.resolver';
+import { EventObject } from './event.resolver';
 
 export const UserObject = builder.objectRef<User>('User');
 export const UserConnection = createConnection(UserObject);
@@ -100,7 +99,6 @@ builder.mutationField('updateUser', (t) =>
     args: {
       displayName: t.arg.string({ required: false }),
       email: emailArg(t, false),
-      password: passwordArg(t, false),
       uuid: uuidArg(t),
       roles: t.arg({ type: [RoleEnum], required: false }),
     },
@@ -109,14 +107,9 @@ builder.mutationField('updateUser', (t) =>
       return isOwnerOrAdmin(uuid, user);
     },
     resolve: async (_, args, { dataSources }) => {
-      const hashPassword = args.password
-        ? await hash(args.password, 4)
-        : undefined;
-
       const datas: Prisma.UserUpdateArgs['data'] = {
         displayName: args.displayName ?? undefined,
         email: args.email,
-        password: hashPassword,
       };
       if (args.roles) datas.roles = args.roles;
 
