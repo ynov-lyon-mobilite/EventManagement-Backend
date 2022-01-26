@@ -110,7 +110,7 @@ builder.queryField('events', (t) =>
       const where: Prisma.EventWhereInput = {
         AND: [
           { startDate: { gt: new Date() } },
-          { deletedAt: args.deleted ? { not: null } : null },
+          { deletedAt: args.deleted ? undefined : null },
         ],
       };
 
