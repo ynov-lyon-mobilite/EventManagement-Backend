@@ -124,7 +124,7 @@ builder.mutationField('createEvent', (t) =>
       startDate: t.arg({ type: 'Date' }),
       endDate: t.arg({ type: 'Date', required: false }),
     },
-    resolve: async (_, args, { dataSources }) => {
+    resolve: async (_, args, { dataSources, pubsub }) => {
       const eventCategory = await prisma.eventCategories.findUnique({
         where: { uuid: args.categoryUuid },
       });
@@ -145,6 +145,8 @@ builder.mutationField('createEvent', (t) =>
       await dataSources.price.createPrice(event.uuid, {
         amount: 0,
       });
+
+      pubsub.publish('newEvent', { event });
 
       return event;
     },
@@ -288,6 +290,19 @@ builder.mutationField('testSub', (t) =>
       const user = await prisma.user.findFirst({});
       pubsub.publish('eventCreated', user);
       return true;
+    },
+  })
+);
+
+builder.subscriptionField('newEvent', (t) =>
+  t.field({
+    type: EventObject,
+    resolve: (root) => {
+      console.log(root);
+      return prisma.event.findFirst();
+    },
+    subscribe: (_, _args, { pubsub }) => {
+      return pubsub.asyncIterator('newEvent');
     },
   })
 );

@@ -1,12 +1,12 @@
+import { CustomPubSub } from '@api/utils/pubsub.utils';
 import { RoleEnum, User } from '@prisma/client';
-import { IncomingMessage, ServerResponse } from 'http';
-import { UserService } from '../services/user.service';
 import session from 'express-session';
-import { PriceService } from '../services/price.service';
-import { EventService } from '../services/event.service';
+import { IncomingMessage, ServerResponse } from 'http';
 import { BookingService } from '../services/booking.service';
 import { EventCategoryService } from '../services/event.category.service';
-import { PubSub } from 'graphql-subscriptions';
+import { EventService } from '../services/event.service';
+import { PriceService } from '../services/price.service';
+import { UserService } from '../services/user.service';
 
 declare module 'express-session' {
   interface SessionData {
@@ -24,7 +24,7 @@ export type JWTPayload = User;
 export type CommonContext = {
   user: SessionUserPayload | undefined;
   dataSources: DataSources;
-  pubsub: PubSub;
+  pubsub: CustomPubSub;
 };
 
 export type HttpContext = CommonContext & {

@@ -6,25 +6,25 @@ import {
   IncomingNextMessage,
   SubscriptionContext,
 } from '@api/schema/types';
-import { ServerResponse, createServer } from 'http';
+import { resolverUserToken } from '@api/utils/jwt';
+import { CustomPubSub } from '@api/utils/pubsub.utils';
 import {
   ApolloServerPluginDrainHttpServer,
   ApolloServerPluginLandingPageGraphQLPlayground,
 } from 'apollo-server-core';
-import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
-import { graphqlUploadExpress } from 'graphql-upload';
-import { resolverUserToken } from '@api/utils/jwt';
 import cookieParser from 'cookie-parser';
-import { PubSub } from 'graphql-subscriptions';
+import express from 'express';
 import { execute, subscribe } from 'graphql';
+import { graphqlUploadExpress } from 'graphql-upload';
+import { createServer, ServerResponse } from 'http';
 import { SubscriptionServer } from 'subscriptions-transport-ws';
 
 type HandlerContext = { req: IncomingNextMessage; res: ServerResponse };
 
 const PORT = process.env.PORT ?? 3000;
 
-const pubsub = new PubSub();
+const pubsub = new CustomPubSub();
 
 async function startApolloServer() {
   const app = express();
