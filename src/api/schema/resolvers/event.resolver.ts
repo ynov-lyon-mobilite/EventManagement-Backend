@@ -3,6 +3,7 @@ import { prisma } from '@api/prisma-client';
 import { uuidArg } from '../args/generic.args';
 import { cursorArgs, generateCursorFindMany } from '../args/pagination.args';
 import { builder } from '../builder';
+import { BookingObject } from './booking.resolver';
 import { createConnection, createConnectionObject } from './edge.resolver';
 import { EventCategoryObject } from './event.category.resolver';
 import { PriceObject } from './prices.resolver';
@@ -90,6 +91,15 @@ builder.objectType(EventObject, {
       type: 'Int',
       resolve: async ({ uuid }) => {
         return prisma.booking.count({
+          where: { eventPrice: { event: { uuid } } },
+        });
+      },
+    }),
+    bookings: t.field({
+      type: [BookingObject],
+      authScopes: { isAdmin: true },
+      resolve: ({ uuid }) => {
+        return prisma.booking.findMany({
           where: { eventPrice: { event: { uuid } } },
         });
       },
