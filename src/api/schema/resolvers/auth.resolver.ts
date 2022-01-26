@@ -99,7 +99,7 @@ builder.mutationField('changePassword', (t) =>
 
       const password = await hash(newPassword, 10);
 
-      prisma.user.update({
+      await prisma.user.update({
         where: { uuid: user!.uuid },
         data: { password },
       });
