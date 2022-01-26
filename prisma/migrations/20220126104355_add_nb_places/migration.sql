@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Event" ADD COLUMN     "nbPlaces" INTEGER NOT NULL DEFAULT 0;
