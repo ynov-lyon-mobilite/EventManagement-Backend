@@ -198,6 +198,7 @@ builder.mutationField('updateEvent', (t) =>
       categoryUuid: uuidArg(t, false),
       startDate: t.arg({ type: 'Date', required: false }),
       endDate: t.arg({ type: 'Date', required: false }),
+      nbPlaces: t.arg.int({ required: false, defaultValue: 0 }),
     },
     validate: ({ uuid, ...rest }) => {
       return Object.values(rest).some(
@@ -210,6 +211,7 @@ builder.mutationField('updateEvent', (t) =>
         description: args.description ?? undefined,
         startDate: args.startDate ?? undefined,
         endDate: args.endDate ?? undefined,
+        nbPlaces: args.nbPlaces ?? undefined,
       };
 
       if (args.categoryUuid) {
