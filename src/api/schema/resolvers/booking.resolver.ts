@@ -59,3 +59,30 @@ builder.mutationField('createBooking', (t) =>
     },
   })
 );
+
+builder.mutationField('refundBooking', (t) =>
+  t.field({
+    type: BookingObject,
+    args: {
+      bookingUuid: t.arg.string({ required: true }),
+    },
+    authScopes: { isLogged: true },
+    resolve: async (_, args) => {
+      const booking = await prisma.booking.findUnique({
+        where: { uuid: args.bookingUuid },
+      });
+
+      if (booking.refunded) {
+        throw new Error('Booking already refunded');
+      }
+
+      return prisma.booking.update({
+        where: { uuid: args.bookingUuid },
+        data: {
+          refunded: true,
+          refundedAt: new Date(),
+        },
+      });
+    },
+  })
+);
