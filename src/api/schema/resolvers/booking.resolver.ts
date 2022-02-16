@@ -66,7 +66,7 @@ builder.mutationField('refundBooking', (t) =>
     args: {
       bookingUuid: t.arg.string({ required: true }),
     },
-    authScopes: { isLogged: true },
+    authScopes: { isAdmin: true },
     resolve: async (_, args) => {
       const booking = await prisma.booking.findUnique({
         where: { uuid: args.bookingUuid },
