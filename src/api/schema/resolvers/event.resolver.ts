@@ -167,7 +167,13 @@ builder.mutationField('createEvent', (t) =>
       categoryUuid: uuidArg(t),
       startDate: t.arg({ type: 'Date' }),
       endDate: t.arg({ type: 'Date', required: false }),
-      nbPlaces: t.arg.int({ required: false, defaultValue: 0 }),
+      nbPlaces: t.arg.int({
+        required: false,
+        defaultValue: 0,
+        validate: {
+          negative: false,
+        },
+      }),
       image: t.arg({ type: 'Upload', required: false }),
     },
     resolve: async (_, args, { dataSources, pubsub }) => {
@@ -217,7 +223,13 @@ builder.mutationField('updateEvent', (t) =>
       categoryUuid: uuidArg(t, false),
       startDate: t.arg({ type: 'Date', required: false }),
       endDate: t.arg({ type: 'Date', required: false }),
-      nbPlaces: t.arg.int({ required: false, defaultValue: 0 }),
+      nbPlaces: t.arg.int({
+        required: false,
+        defaultValue: 0,
+        validate: {
+          negative: false,
+        },
+      }),
       image: t.arg({ type: 'Upload', required: false }),
     },
     validate: ({ uuid, ...rest }) => {
