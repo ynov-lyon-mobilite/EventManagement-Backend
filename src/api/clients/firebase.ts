@@ -2,11 +2,10 @@ import { AppOptions, credential } from 'firebase-admin';
 import { getStorage } from 'firebase-admin/storage';
 import { initializeApp } from 'firebase-admin/app';
 
-const creds = credential.cert({
-  clientEmail: process.env.client_email,
-  privateKey: process.env.private_key,
-  projectId: process.env.project_id,
-});
+const certs = JSON.parse(process.env.firebase_certs);
+console.log(certs);
+
+const creds = credential.cert(certs);
 
 export const firebaseOptions: AppOptions = {
   credential: creds,

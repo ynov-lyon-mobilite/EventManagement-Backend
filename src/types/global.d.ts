@@ -4,5 +4,6 @@ namespace NodeJS {
     client_email: string;
     project_id: string;
     storage_bucket: string;
+    firebase_certs: string;
   }
 }
