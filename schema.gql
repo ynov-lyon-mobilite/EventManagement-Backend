@@ -18,9 +18,12 @@ scalar CursorID
 scalar Date
 
 type Event {
+  bookings: [Booking!]!
   category: EventCategory!
+  deletedAt: Date
   description: String
   endDate: Date
+  image: String
   nbPlaces: Int!
   participants(
     cursor: CursorID
@@ -54,9 +57,16 @@ type EventNode {
   node: Event!
 }
 
+type File {
+  encoding: String!
+  filename: String!
+  mimetype: String!
+}
+
 type Mutation {
+  changePassword(newPassword: String!, oldPassword: String!): Boolean!
   createBooking(eventPriceUuid: String!): Booking!
-  createEvent(categoryUuid: String!, description: String, endDate: Date, nbPlaces: Int = 0, startDate: Date!, title: String!): Event!
+  createEvent(categoryUuid: String!, description: String, endDate: Date, image: Upload, nbPlaces: Int = 0, startDate: Date!, title: String!): Event!
   createEventCategory(name: String!): EventCategory!
   createPrice(amount: Float!, description: String, eventUuid: String!): Price!
   deleteEvent(uuid: String!): Event!
@@ -76,12 +86,14 @@ type Mutation {
     successUrl: String!
   ): String!
   login(email: String!, password: String!): UserAuth!
+  refundBooking(bookingUuid: String!): Booking!
   register(displayName: String!, email: String!, password: String!): UserAuth!
   restoreEventCategory(uuid: String!): EventCategory!
   testSub: Boolean!
-  updateEvent(categoryUuid: String, description: String, endDate: Date, startDate: Date, title: String, uuid: String!): Event!
+  testUpload(file: Upload!): String!
+  updateEvent(categoryUuid: String, description: String, endDate: Date, nbPlaces: Int = 0, startDate: Date, title: String, uuid: String!): Event!
   updateEventCategory(name: String!, uuid: String!): EventCategory!
-  updateUser(displayName: String, email: String, password: String, roles: [Role!], uuid: String!): User!
+  updateUser(displayName: String, email: String, roles: [Role!], uuid: String!): User!
 }
 
 type PageInfo {
@@ -111,6 +123,7 @@ type Query {
   events(
     cursor: CursorID
     deleted: Boolean = false
+    includePastEvents: Boolean = false
     page: Int = 1
 
     """Max 50, Min 1"""
@@ -143,6 +156,9 @@ type Subscription {
 type Success {
   success: Boolean!
 }
+
+"""The `Upload` scalar type represents a file upload."""
+scalar Upload
 
 type User {
   bookings: [Booking!]!

@@ -1,4 +1,4 @@
-import { prisma } from '@api/prisma-client';
+import { db } from '@api/clients/prisma-client';
 import { Prisma, RoleEnum, User } from '@prisma/client';
 import { uuidArg } from '../args/generic.args';
 import { cursorArgs, generateCursorFindMany } from '../args/pagination.args';
@@ -24,7 +24,7 @@ builder.objectType(UserObject, {
         return isOwnerOrAdmin(uuid, user);
       },
       resolve: async ({ uuid }) => {
-        const bookings = await prisma.user
+        const bookings = await db.user
           .findUnique({ where: { uuid } })
           .bookings({
             select: { eventPrice: { select: { event: true } } },
@@ -38,7 +38,7 @@ builder.objectType(UserObject, {
         return isOwnerOrAdmin(uuid, user);
       },
       resolve: ({ uuid }) => {
-        return prisma.user.findUnique({ where: { uuid } }).bookings();
+        return db.user.findUnique({ where: { uuid } }).bookings();
       },
     }),
   }),
@@ -55,8 +55,8 @@ builder.queryField('users', (t) =>
       const findArgs = generateCursorFindMany(args);
       return createConnectionObject({
         args,
-        count: prisma.user.count(),
-        edges: prisma.user.findMany({
+        count: db.user.count(),
+        edges: db.user.findMany({
           ...findArgs,
           orderBy: { createdAt: 'asc' },
         }),
@@ -73,7 +73,7 @@ builder.queryField('user', (t) =>
       id: t.arg.string(),
     },
     resolve: (_root, args) => {
-      return prisma.user.findUnique({ where: { uuid: args.id } });
+      return db.user.findUnique({ where: { uuid: args.id } });
     },
   })
 );
@@ -88,7 +88,7 @@ builder.mutationField('deleteUser', (t) =>
       return isOwnerOrAdmin(uuid, user);
     },
     resolve: (_, { uuid }) => {
-      return prisma.user.delete({ where: { uuid } });
+      return db.user.delete({ where: { uuid } });
     },
   })
 );

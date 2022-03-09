@@ -44,6 +44,7 @@ model Event {
   prices              EventPrices[]
   nbPlaces            Int             @default(0)
   stripeProductId     String
+  image               String?
 }
 
 model EventPrices {

@@ -1,19 +1,19 @@
 import { EventCategories } from '.prisma/client';
-import { prisma } from '@api/prisma-client';
+import { db } from '@api/clients/prisma-client';
 
 export class EventCategoryService {
   public getAll(): Promise<EventCategories[]> {
-    return prisma.eventCategories.findMany();
+    return db.eventCategories.findMany();
   }
 
   public getAllActives(): Promise<EventCategories[]> {
-    return prisma.eventCategories.findMany({
+    return db.eventCategories.findMany({
       where: { deletedAt: null },
     });
   }
 
   public deleteEventCategory(uuid: string): Promise<EventCategories> {
-    return prisma.eventCategories.update({
+    return db.eventCategories.update({
       where: {
         uuid,
       },
@@ -24,7 +24,7 @@ export class EventCategoryService {
   }
 
   public restoreEventCategory(uuid: string): Promise<EventCategories> {
-    return prisma.eventCategories.update({
+    return db.eventCategories.update({
       where: {
         uuid,
       },
