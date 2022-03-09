@@ -218,6 +218,7 @@ builder.mutationField('updateEvent', (t) =>
       startDate: t.arg({ type: 'Date', required: false }),
       endDate: t.arg({ type: 'Date', required: false }),
       nbPlaces: t.arg.int({ required: false, defaultValue: 0 }),
+      image: t.arg({ type: 'Upload', required: false }),
     },
     validate: ({ uuid, ...rest }) => {
       return Object.values(rest).some(
@@ -225,12 +226,19 @@ builder.mutationField('updateEvent', (t) =>
       );
     },
     resolve: async (_root, args, { dataSources }) => {
+      let imagePath: string | null = null;
+
+      if (args.image) {
+        imagePath = await saveImageToFirebase(args.image);
+      }
+
       const datas: Prisma.EventUpdateArgs['data'] = {
         title: args.title ?? undefined,
         description: args.description ?? undefined,
         startDate: args.startDate ?? undefined,
         endDate: args.endDate ?? undefined,
         nbPlaces: args.nbPlaces ?? undefined,
+        ...(args.image ? { image: imagePath } : undefined),
       };
 
       if (args.categoryUuid) {
