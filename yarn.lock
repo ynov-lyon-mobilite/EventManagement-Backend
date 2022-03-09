@@ -116,10 +116,10 @@
   dependencies:
     tslib "^2.1.0"
 
-"@giraphql/core@^2.19.0":
-  version "2.19.0"
-  resolved "https://registry.yarnpkg.com/@giraphql/core/-/core-2.19.0.tgz#3fcb6f087890b331749ec4793ec5660899610a3f"
-  integrity sha512-QMozhNIVNaOnNRDoYtTKacp+CErzmxqs8kTRAieuuRRPUibFT73hZ8/6VcLG240DpWlstOSfcWsPZMwDIm9Lkw==
+"@giraphql/core@^2.23.0":
+  version "2.23.0"
+  resolved "https://registry.yarnpkg.com/@giraphql/core/-/core-2.23.0.tgz#d18991b5ba41267e01cae1593d4c677132bbfa87"
+  integrity sha512-/hs4eVtUMceHDhqZqjF15YRTpXDqPzgVkm0I8F+j3+/9roINjfWzxMyxZhOzTF103nlnMWdN76a54HAut9Wcog==
 
 "@giraphql/plugin-scope-auth@^2.13.1":
   version "2.13.1"
