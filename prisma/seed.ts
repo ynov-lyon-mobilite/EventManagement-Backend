@@ -1,12 +1,12 @@
-import { prisma } from '../src/api/prisma-client';
 import { hash } from 'bcryptjs';
+import { db } from '../src/api/clients/prisma-client';
 
 async function main() {
   console.info('🌱 Seeding database');
 
   const password = await hash('hophop', 4);
 
-  await prisma.user.upsert({
+  await db.user.upsert({
     where: { email: 'martin.pelcat@yvent.com' },
     update: {},
     create: {
@@ -19,7 +19,7 @@ async function main() {
     },
   });
 
-  await prisma.user.upsert({
+  await db.user.upsert({
     where: { email: 'admin@yvent.com' },
     update: {},
     create: {
@@ -39,5 +39,5 @@ main()
     process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect();
+    await db.$disconnect();
   });

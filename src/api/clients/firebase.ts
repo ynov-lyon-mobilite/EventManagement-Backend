@@ -3,7 +3,6 @@ import { getStorage } from 'firebase-admin/storage';
 import { initializeApp } from 'firebase-admin/app';
 
 const certs = JSON.parse(process.env.firebase_certs);
-console.log(certs);
 
 const creds = credential.cert(certs);
 
