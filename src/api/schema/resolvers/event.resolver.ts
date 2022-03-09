@@ -138,7 +138,7 @@ builder.queryField('events', (t) =>
         edges: db.event.findMany({
           ...findArgs,
           where,
-          orderBy: { startDate: 'asc' },
+          orderBy: { startDate: 'desc' },
         }),
       });
     },
