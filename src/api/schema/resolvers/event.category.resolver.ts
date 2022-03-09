@@ -1,5 +1,5 @@
 import { EventCategories } from '.prisma/client';
-import { prisma } from '@api/prisma-client';
+import { db } from '@api/clients/prisma-client';
 import { builder } from '../builder';
 
 export const EventCategoryObject = builder.objectRef<EventCategories>(
@@ -21,9 +21,9 @@ builder.queryField('eventCategories', (t) =>
     type: [EventCategoryObject],
     resolve: (_root, _args, { user }) => {
       if (user && user.roles.includes('ADMIN')) {
-        return prisma.eventCategories.findMany();
+        return db.eventCategories.findMany();
       }
-      return prisma.eventCategories.findMany({
+      return db.eventCategories.findMany({
         where: { deletedAt: { equals: null } },
       });
     },
@@ -38,7 +38,7 @@ builder.mutationField('createEventCategory', (t) =>
       name: t.arg.string({ required: true }),
     },
     resolve: async (_, { name }) => {
-      return prisma.eventCategories.create({
+      return db.eventCategories.create({
         data: {
           name,
         },
@@ -56,7 +56,7 @@ builder.mutationField('updateEventCategory', (t) =>
       name: t.arg.string({ required: true }),
     },
     resolve: async (_, { uuid, name }) => {
-      return prisma.eventCategories.update({
+      return db.eventCategories.update({
         where: {
           uuid,
         },
@@ -106,7 +106,7 @@ builder.mutationField('restoreEventCategory', (t) =>
       uuid: t.arg.string({ required: true }),
     },
     resolve: async (_, { uuid }) => {
-      return prisma.eventCategories.update({
+      return db.eventCategories.update({
         where: {
           uuid,
         },

@@ -1,3 +1,4 @@
+import { FileUpload } from 'graphql-upload';
 import { CommonContext } from './context';
 
 export type ShemaBuilderOptions = {
@@ -10,6 +11,10 @@ export type ShemaBuilderOptions = {
     CursorID: {
       Input: string;
       Output: string;
+    };
+    Upload: {
+      Input: Promise<FileUpload>;
+      Output: FileUpload;
     };
   };
   AuthScopes: {

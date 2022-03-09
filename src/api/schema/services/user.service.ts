@@ -1,5 +1,5 @@
 import { Prisma } from '.prisma/client';
-import { prisma } from '@api/prisma-client';
+import { db } from '@api/clients/prisma-client';
 import { stripe } from '@api/utils/stripe';
 import { hash } from 'bcryptjs';
 import { Stripe } from 'stripe';
@@ -17,7 +17,7 @@ export class UserService extends Service {
         ? await hash(data.password, 10)
         : undefined;
 
-      const user = await prisma.user.create({
+      const user = await db.user.create({
         data: {
           ...data,
           stripeCustomerId: stripeUser.id,
@@ -41,7 +41,7 @@ export class UserService extends Service {
   }
 
   public async updateUser(userUuid: string, datas: Prisma.UserUpdateInput) {
-    const user = await prisma.user.findUnique({ where: { uuid: userUuid } });
+    const user = await db.user.findUnique({ where: { uuid: userUuid } });
 
     let customer: Stripe.Customer | undefined = undefined;
 
@@ -59,7 +59,7 @@ export class UserService extends Service {
       datas.stripeCustomerId = customer.id;
     }
 
-    return prisma.user.update({
+    return db.user.update({
       where: { uuid: userUuid },
       data: {
         ...datas,

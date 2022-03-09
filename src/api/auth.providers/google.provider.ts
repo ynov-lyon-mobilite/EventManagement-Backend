@@ -1,7 +1,7 @@
 import { Strategy } from 'passport';
 import { IAuthProvider } from './IAuthProvider';
 import { OAuth2Strategy } from 'passport-google-oauth';
-import { prisma } from '@api/prisma-client';
+import { db } from '@api/clients/prisma-client';
 import { UserService } from '@api/schema/services/user.service';
 
 export class GoogleProvider implements IAuthProvider {
@@ -23,7 +23,7 @@ export class GoogleProvider implements IAuthProvider {
         clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
       },
       async (_accessToken, _refreshToken, profile, done) => {
-        const user = await prisma.user.findUnique({
+        const user = await db.user.findUnique({
           where: {
             provider_providerId: {
               provider: 'GOOGLE',

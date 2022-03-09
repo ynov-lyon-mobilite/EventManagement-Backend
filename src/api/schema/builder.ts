@@ -3,6 +3,7 @@ import SimpleObjectsPlugin from '@giraphql/plugin-simple-objects';
 import ScopeAuthPlugin from '@giraphql/plugin-scope-auth';
 import ValidationPlugin from '@giraphql/plugin-validation';
 import { CommonContext, ShemaBuilderOptions } from 'src/api/schema/types';
+import { GraphQLUpload } from 'graphql-upload';
 
 export const builder = new SchemaBuilder<ShemaBuilderOptions>({
   plugins: [SimpleObjectsPlugin, ScopeAuthPlugin, ValidationPlugin],
@@ -36,3 +37,5 @@ builder.scalarType('CursorID', {
   serialize: (cursor) => Buffer.from(cursor).toString('base64'),
   parseValue: (cursor) => Buffer.from(cursor, 'base64').toString('utf8'),
 });
+
+builder.addScalarType('Upload', GraphQLUpload, {});

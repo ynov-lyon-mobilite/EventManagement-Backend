@@ -1,5 +1,5 @@
 import { EventPrices } from '.prisma/client';
-import { prisma } from '@api/prisma-client';
+import { db } from '@api/clients/prisma-client';
 import { builder } from '../builder';
 
 export const PriceObject = builder.objectRef<EventPrices>('Price');
@@ -20,7 +20,7 @@ builder.mutationField('deletePrice', (t) =>
       uuid: t.arg.string(),
     },
     resolve: async (_, args, { dataSources }) => {
-      const price = await prisma.eventPrices.findUnique({
+      const price = await db.eventPrices.findUnique({
         where: { uuid: args.uuid },
       });
 

@@ -1,4 +1,4 @@
-import { prisma } from '@api/prisma-client';
+import { db } from '@api/clients/prisma-client';
 import { UserService } from '@api/schema/services/user.service';
 import { Strategy } from 'passport';
 import { Strategy as FacebookStrategy } from 'passport-facebook';
@@ -24,7 +24,7 @@ export class FacebookProvider implements IAuthProvider {
         profileFields: ['id', 'displayName', 'photos', 'emails'],
       },
       async (_accessToken, _refreshToken, profile, done) => {
-        const user = await prisma.user.findUnique({
+        const user = await db.user.findUnique({
           where: {
             provider_providerId: {
               provider: 'FACEBOOK',

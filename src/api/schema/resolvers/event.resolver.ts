@@ -1,8 +1,9 @@
 import { Event, EventCategories, Prisma, User } from '.prisma/client';
-import { prisma } from '@api/prisma-client';
+import { db } from '@api/clients/prisma-client';
 import { uuidArg } from '../args/generic.args';
 import { cursorArgs, generateCursorFindMany } from '../args/pagination.args';
 import { builder } from '../builder';
+import { saveImageToFirebase } from '../services/file.service';
 import { BookingObject } from './booking.resolver';
 import { createConnection, createConnectionObject } from './edge.resolver';
 import { EventCategoryObject } from './event.category.resolver';
@@ -21,12 +22,13 @@ builder.objectType(EventObject, {
     description: t.exposeString('description', { nullable: true }),
     nbPlaces: t.exposeInt('nbPlaces'),
     deletedAt: t.expose('deletedAt', { type: 'Date', nullable: true }),
+    image: t.exposeString('image', { nullable: true }),
     restPlaces: t.field({
       type: 'Int',
       resolve: async (event) => {
         const { nbPlaces } = event;
 
-        const bookings = await prisma.booking.count({
+        const bookings = await db.booking.count({
           where: {
             eventPrice: {
               event: {
@@ -42,13 +44,13 @@ builder.objectType(EventObject, {
     prices: t.field({
       type: [PriceObject],
       resolve: ({ uuid }) => {
-        return prisma.event.findUnique({ where: { uuid } }).prices();
+        return db.event.findUnique({ where: { uuid } }).prices();
       },
     }),
     category: t.field({
       type: EventCategoryObject,
       resolve: async ({ uuid }) => {
-        const category: EventCategories | null = await prisma.event
+        const category: EventCategories | null = await db.event
           .findUnique({ where: { uuid } })
           .category();
         return category!;
@@ -70,7 +72,7 @@ builder.objectType(EventObject, {
             }
           : undefined;
 
-        const bookings = await prisma.booking.findMany({
+        const bookings = await db.booking.findMany({
           where: { eventPrice: { event: { uuid } } },
           select: { user: true },
           take,
@@ -81,7 +83,7 @@ builder.objectType(EventObject, {
         return createConnectionObject({
           args,
           edges: bookings.map((booking) => booking.user),
-          count: prisma.booking.count({
+          count: db.booking.count({
             where: { eventPrice: { event: { uuid } } },
           }),
         });
@@ -90,7 +92,7 @@ builder.objectType(EventObject, {
     participantsCount: t.field({
       type: 'Int',
       resolve: async ({ uuid }) => {
-        return prisma.booking.count({
+        return db.booking.count({
           where: { eventPrice: { event: { uuid } } },
         });
       },
@@ -99,7 +101,7 @@ builder.objectType(EventObject, {
       type: [BookingObject],
       authScopes: { isAdmin: true },
       resolve: ({ uuid }) => {
-        return prisma.booking.findMany({
+        return db.booking.findMany({
           where: { eventPrice: { event: { uuid } } },
         });
       },
@@ -132,8 +134,8 @@ builder.queryField('events', (t) =>
 
       return createConnectionObject({
         args,
-        count: prisma.event.count({ where }),
-        edges: prisma.event.findMany({
+        count: db.event.count({ where }),
+        edges: db.event.findMany({
           ...findArgs,
           where,
           orderBy: { startDate: 'asc' },
@@ -150,7 +152,7 @@ builder.queryField('event', (t) =>
       uuid: uuidArg(t),
     },
     resolve: (_root, { uuid }) => {
-      return prisma.event.findUnique({ where: { uuid } });
+      return db.event.findUnique({ where: { uuid } });
     },
   })
 );
@@ -166,15 +168,21 @@ builder.mutationField('createEvent', (t) =>
       startDate: t.arg({ type: 'Date' }),
       endDate: t.arg({ type: 'Date', required: false }),
       nbPlaces: t.arg.int({ required: false, defaultValue: 0 }),
+      image: t.arg({ type: 'Upload', required: false }),
     },
     resolve: async (_, args, { dataSources, pubsub }) => {
-      const eventCategory = await prisma.eventCategories.findUnique({
+      const eventCategory = await db.eventCategories.findUnique({
         where: { uuid: args.categoryUuid },
       });
       if (eventCategory.deletedAt !== null) {
         throw new Error(
           'Il faut activer la categorie avant de pouvoir ajouter cet évenement'
         );
+      }
+      let filePath: string | null = null;
+
+      if (args.image) {
+        filePath = await saveImageToFirebase(args.image);
       }
 
       const event = await dataSources.event.createEvent({
@@ -184,6 +192,7 @@ builder.mutationField('createEvent', (t) =>
         category: { connect: { uuid: args.categoryUuid } },
         endDate: args.endDate,
         nbPlaces: args.nbPlaces!,
+        image: filePath,
       });
 
       await dataSources.price.createPrice(event.uuid, {
@@ -285,10 +294,10 @@ builder.queryField('eventParticipants', (t) =>
 
       return createConnectionObject({
         args,
-        count: prisma.booking.count({
+        count: db.booking.count({
           where: { eventPrice: { event: { uuid: args.eventUuid } } },
         }),
-        edges: prisma.user.findMany({
+        edges: db.user.findMany({
           ...findArgs,
           where: {
             bookings: {
@@ -333,7 +342,7 @@ builder.mutationField('testSub', (t) =>
   t.field({
     type: 'Boolean',
     resolve: async (_, _args, { pubsub }) => {
-      const user = await prisma.user.findFirst({});
+      const user = await db.user.findFirst({});
       pubsub.publish('eventCreated', user);
       return true;
     },

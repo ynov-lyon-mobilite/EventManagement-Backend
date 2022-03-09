@@ -1,5 +1,5 @@
 import { EventPrices } from '.prisma/client';
-import { prisma } from '@api/prisma-client';
+import { db } from '@api/clients/prisma-client';
 import { stripe } from '@api/utils/stripe';
 
 export class PriceService {
@@ -7,7 +7,7 @@ export class PriceService {
     eventUuid: string,
     data: Partial<EventPrices>
   ): Promise<EventPrices> {
-    const event = await prisma.event.findUnique({ where: { uuid: eventUuid } });
+    const event = await db.event.findUnique({ where: { uuid: eventUuid } });
 
     const price = await stripe.prices.create({
       currency: 'eur',
@@ -15,7 +15,7 @@ export class PriceService {
       unit_amount: data.amount! * 100,
     });
 
-    return prisma.eventPrices.create({
+    return db.eventPrices.create({
       data: {
         event: { connect: { uuid: eventUuid } },
         amount: data.amount ?? 0,
@@ -26,7 +26,7 @@ export class PriceService {
   }
 
   public async deletePrice(uuid: string) {
-    const price = await prisma.eventPrices.findUnique({
+    const price = await db.eventPrices.findUnique({
       where: { uuid },
       include: { bookings: true },
     });
@@ -37,7 +37,7 @@ export class PriceService {
 
     await stripe.prices.update(price.stripePriceId, { active: false });
 
-    return prisma.eventPrices.delete({
+    return db.eventPrices.delete({
       where: { uuid },
     });
   }

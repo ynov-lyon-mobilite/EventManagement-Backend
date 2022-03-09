@@ -1,5 +1,5 @@
 import { Booking } from '.prisma/client';
-import { prisma } from '@api/prisma-client';
+import { db } from '@api/clients/prisma-client';
 import { builder } from '../builder';
 import { EventObject } from './event.resolver';
 import { UserObject } from './user.resolver';
@@ -15,7 +15,7 @@ builder.objectType(BookingObject, {
       type: 'Float',
       nullable: true,
       resolve: async (root) => {
-        const eventPrice = await prisma.booking
+        const eventPrice = await db.booking
           .findUnique({ where: { uuid: root.uuid } })
           .eventPrice();
         return eventPrice?.amount;
@@ -24,7 +24,7 @@ builder.objectType(BookingObject, {
     event: t.field({
       type: EventObject,
       resolve: async (root) => {
-        const event = await prisma.booking
+        const event = await db.booking
           .findUnique({ where: { uuid: root.uuid } })
           .eventPrice()
           .event();
@@ -34,7 +34,7 @@ builder.objectType(BookingObject, {
     user: t.field({
       type: UserObject,
       resolve: async (root) => {
-        const user = await prisma.booking
+        const user = await db.booking
           .findUnique({ where: { uuid: root.uuid } })
           .user();
         return user!;
@@ -68,7 +68,7 @@ builder.mutationField('refundBooking', (t) =>
     },
     authScopes: { isAdmin: true },
     resolve: async (_, args) => {
-      const booking = await prisma.booking.findUnique({
+      const booking = await db.booking.findUnique({
         where: { uuid: args.bookingUuid },
       });
 
@@ -76,7 +76,7 @@ builder.mutationField('refundBooking', (t) =>
         throw new Error('Booking already refunded');
       }
 
-      return prisma.booking.update({
+      return db.booking.update({
         where: { uuid: args.bookingUuid },
         data: {
           refunded: true,

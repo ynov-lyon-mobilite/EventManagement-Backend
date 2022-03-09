@@ -1,12 +1,12 @@
 import { Booking, Prisma } from '.prisma/client';
-import { prisma } from '@api/prisma-client';
+import { db } from '@api/clients/prisma-client';
 import { Service } from './service';
 
 export class BookingService extends Service {
   public async createBooking(
     datas: Prisma.BookingCreateInput
   ): Promise<Booking> {
-    const booking = await prisma.booking.create({
+    const booking = await db.booking.create({
       data: datas,
       include: { user: true, eventPrice: { include: { event: true } } },
     });
@@ -25,7 +25,7 @@ export class BookingService extends Service {
     // TODO: check if booking date can be refunded
     // TODO: Implement logic to refund booking
     // TODO: send email to user to confirme refund
-    return prisma.booking.update({
+    return db.booking.update({
       where: { uuid: bookingId },
       data: {
         refundedAt: new Date(),

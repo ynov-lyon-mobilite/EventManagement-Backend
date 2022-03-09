@@ -1,5 +1,5 @@
 import { User } from '.prisma/client';
-import { prisma } from '@api/prisma-client';
+import { db } from '@api/clients/prisma-client';
 import { JWT_SECRET } from '@api/utils/jwt';
 import { compare, hash } from 'bcryptjs';
 import { sign } from 'jsonwebtoken';
@@ -26,7 +26,7 @@ builder.mutationField('login', (t) =>
       password: passwordArg(t),
     },
     resolve: async (_, { email, password }, ctx) => {
-      const user = await prisma.user.findUnique({
+      const user = await db.user.findUnique({
         where: { email },
         rejectOnNotFound: true,
       });
@@ -73,7 +73,7 @@ builder.queryField('user_infos', (t) =>
       isLogged: true,
     },
     resolve: (_root, _args, { user }) => {
-      return prisma.user.findUnique({
+      return db.user.findUnique({
         where: { uuid: user!.uuid },
       });
     },
@@ -89,7 +89,7 @@ builder.mutationField('changePassword', (t) =>
     },
     authScopes: { isLogged: true },
     resolve: async (_root, { oldPassword, newPassword }, { user }) => {
-      const usr = await prisma.user.findUnique({
+      const usr = await db.user.findUnique({
         where: { uuid: user!.uuid },
       });
 
@@ -100,7 +100,7 @@ builder.mutationField('changePassword', (t) =>
 
       const password = await hash(newPassword, 10);
 
-      await prisma.user.update({
+      await db.user.update({
         where: { uuid: user!.uuid },
         data: { password },
       });

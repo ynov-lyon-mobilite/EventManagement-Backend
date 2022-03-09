@@ -1,4 +1,4 @@
-import { prisma } from '@api/prisma-client';
+import { db } from '@api/clients/prisma-client';
 import { Express } from 'express';
 import passport from 'passport';
 import { FacebookProvider } from './facebook.provider';
@@ -27,7 +27,7 @@ export const registerProviders = (app: Express) => {
   });
 
   passport.deserializeUser(async (usr: any, done) => {
-    const user = await prisma.user.findUnique({
+    const user = await db.user.findUnique({
       where: { uuid: usr.uuid },
     });
     done(null, user);
