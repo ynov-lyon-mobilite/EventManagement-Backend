@@ -30,11 +30,18 @@ builder.objectType(EventObject, {
 
         const bookings = await db.booking.count({
           where: {
-            eventPrice: {
-              event: {
-                uuid: event.uuid,
+            AND: [
+              {
+                eventPrice: {
+                  event: {
+                    uuid: event.uuid,
+                  },
+                },
               },
-            },
+              {
+                refunded: false,
+              },
+            ],
           },
         });
 
@@ -73,7 +80,9 @@ builder.objectType(EventObject, {
           : undefined;
 
         const bookings = await db.booking.findMany({
-          where: { eventPrice: { event: { uuid } } },
+          where: {
+            AND: [{ eventPrice: { event: { uuid } } }, { refunded: false }],
+          },
           select: { user: true },
           take,
           skip,
@@ -84,7 +93,9 @@ builder.objectType(EventObject, {
           args,
           edges: bookings.map((booking) => booking.user),
           count: db.booking.count({
-            where: { eventPrice: { event: { uuid } } },
+            where: {
+              AND: [{ eventPrice: { event: { uuid } } }, { refunded: false }],
+            },
           }),
         });
       },
@@ -93,7 +104,9 @@ builder.objectType(EventObject, {
       type: 'Int',
       resolve: async ({ uuid }) => {
         return db.booking.count({
-          where: { eventPrice: { event: { uuid } } },
+          where: {
+            AND: [{ eventPrice: { event: { uuid } } }, { refunded: false }],
+          },
         });
       },
     }),
@@ -102,7 +115,9 @@ builder.objectType(EventObject, {
       authScopes: { isAdmin: true },
       resolve: ({ uuid }) => {
         return db.booking.findMany({
-          where: { eventPrice: { event: { uuid } } },
+          where: {
+            AND: [{ eventPrice: { event: { uuid } } }, { refunded: false }],
+          },
         });
       },
     }),
@@ -298,6 +313,52 @@ builder.mutationField('joinEvent', (t) =>
         args.successUrl,
         args.cancelUrl
       );
+    },
+  })
+);
+
+builder.mutationField('leaveEvent', (t) =>
+  t.field({
+    type: 'Boolean',
+    authScopes: { isLogged: true },
+    args: {
+      eventUuid: uuidArg(t),
+    },
+    resolve: async (_, args, { user }) => {
+      const data = await db.event.findUnique({
+        where: { uuid: args.eventUuid },
+        include: {
+          prices: {
+            include: {
+              bookings: true,
+            },
+            where: {
+              bookings: {
+                some: {
+                  userUuid: user!.uuid,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      for (const price of data.prices) {
+        console.log(price);
+        await db.booking.updateMany({
+          where: {
+            uuid: {
+              in: price.bookings.map((b) => b.uuid),
+            },
+          },
+          data: {
+            refunded: true,
+            refundedAt: new Date(),
+          },
+        });
+      }
+
+      return true;
     },
   })
 );
